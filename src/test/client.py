@@ -1,8 +1,10 @@
+# -*- coding: utf-8 -*-
 import websocket
 import time
 import json
 
-SERVER = 'ws://127.0.0.1:5555'
+server_host = '127.0.0.1:5555'
+SERVER = "ws://" + server_host
 
 HEART_BEAT = 5005
 RECV_TXT_MSG = 1
@@ -21,8 +23,12 @@ PERSONAL_DETAIL = 6550
 DESTROY_ALL = 9999
 
 
+# def getid():
+#     id = int(time.time() * 1000)
+#     return id
+
 def getid():
-    id = int(time.time() * 1000)
+    id = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
     return id
 
 
@@ -79,7 +85,7 @@ def send_at_meg():
     qs = {
         'id': getid(),
         'type': AT_MSG,
-        'roomid': 'Your roomid', # not null
+        'roomid': 'Your roomid',  # not null
         'content': '我能吞下玻璃而不伤身体',
         'nickname': '[微笑]Python',
     }
@@ -124,22 +130,28 @@ def get_personal_info():
     qs = {
         'id': getid(),
         'type': PERSONAL_INFO,
-        'content': 'op:personal info',
-        'wxid': 'ROOT',
+        'wxid': 'null',
+        'roomid': 'null',
+        'content': 'null',
+        'nickname': "null",
+        'ext': 'null'
     }
     s = json.dumps(qs)
     return s
 
 
-def send_txt_msg():
+def send_txt_msg(text_string, wxid):
     '''
     发送消息给好友
     '''
     qs = {
         'id': getid(),
         'type': TXT_MSG,
-        'content':'【汽车新闻】\n1、2月中国汽车经销商库存预警指数为81.2%\n  https://auto.sina.com.cn/news/hy/2020-03-02/detail-iimxyqvz7206147.shtml\n2、2020年1月合资品牌插混车型上牌量超自主 今年或将全面超越\n  https://auto.sina.com.cn/news/zz/2020-03-02/detail-iimxyqvz7204399.shtml\n3、2月汽车经销商库存预警指数81.2% 同比上升27.7%\n  https://auto.sina.com.cn/news/hy/2020-03-02/detail-iimxyqvz7212598.shtml\n4、车谭|推进数字化转型 比亚迪与西门子达成战略合作\n  https://auto.sina.com.cn/news/hy/2020-03-02/detail-iimxxstf5752750.shtml\n5、业务量下滑，有员工被停工待岗，优信称经营遇到困难\n  https://auto.sina.com.cn/news/zz/2020-03-02/detail-iimxyqvz7183264.shtml\n6、外媒：中国电动车制造商正纷纷转向磷酸铁锂电池 以大幅降低成本\n  https://auto.sina.com.cn/news/hy/2020-03-02/detail-iimxyqvz7194871.shtml\n7、苹果自动驾驶项目裁员190人\n  https://auto.sina.com.cn/news/zz/2020-03-02/detail-iimxxstf5750692.shtml\n8、二手车复工率不足五成  车商盼消除壁垒提振消费\n  https://auto.sina.com.cn/news/zz/2020-03-02/detail-iimxxstf5742747.shtml\n9、车谭|天天拍车：2月份二手车交易逐渐回暖\n  https://auto.sina.com.cn/news/hy/2020-03-02/detail-iimxyqvz7187012.shtml\n10、因“货不对版”特斯拉停止全国交付？ 特斯拉：并未收到相关消息\n  https://auto.sina.com.cn/news/hy/2020-03-02/detail-iimxyqvz7171968.shtml\n',  # 文本消息内容
-        'wxid': '获取的wxid'   # wxid,
+        'wxid': wxid,  # wxid,
+        'roomid': 'null',
+        'content': text_string,  # 文本消息内容
+        'nickname': "null",
+        'ext': 'null'
     }
     s = json.dumps(qs)
     return s
@@ -152,41 +164,59 @@ def send_wxuser_list():
     qs = {
         'id': getid(),
         'type': USER_LIST,
-        'content': 'user list',
-        'wxid': 'null',
+        'wxid': '',
+        'roomid': '',
+        'content': '',
+        'nickname': '',
+        'ext': 'null'
     }
     s = json.dumps(qs)
     return s
 
 
 def handle_wxuser_list(j):
-    j_ary = j.content
+    j_ary = j['content']
     i = 0
+    # 微信群
     for item in j_ary:
         i += 1
-        id = item.wxid
+        id = item['wxid']
         m = id.find('@')
         if m != -1:
-            print(i, item.wxid, item.name)
+            print(i, id, item['name'])
+    # 微信其他好友，公众号等
+    for item in j_ary:
+        i += 1
+        id = item['wxid']
+        m = id.find('@')
+        if m == -1:
+            print(i, id, item['name'])
 
 
-def handle_recv_msg(j):
+def handle_recv_pic_msg(j):
+    print(j)
+
+
+def handle_recv_txt_msg(j):
     print(j)
 
 
 def heartbeat(j):
-    print(j.content)
+    print(j)
 
 
 def on_open(ws):
-    ws.send(send_wxuser_list())     # 获取微信通讯录好友列表
-    ws.send(send_txt_msg())     # 向你的好友发送微信文本消息
+    ws.send(send_wxuser_list())  # 获取微信通讯录好友列表
+    # ws.send(send_txt_msg('我上号了', 'filehelper'))
+
+    # ws.send(send_txt_msg())     # 向你的好友发送微信文本消息
 
 
 def on_message(ws, message):
     print(ws)
     j = json.loads(message)
-    resp_type = j.type
+    # print(j)
+    resp_type = j['type']
     # switch结构
     action = {
         CHATROOM_MEMBER_NICK: handle_nick,
@@ -197,9 +227,10 @@ def on_message(ws, message):
         TXT_MSG: print,
         PIC_MSG: print,
         CHATROOM_MEMBER: hanle_memberlist,
-        RECV_PIC_MSG: handle_recv_msg,
-        RECV_TXT_MSG: handle_recv_msg,
+        RECV_PIC_MSG: handle_recv_pic_msg,
+        RECV_TXT_MSG: handle_recv_txt_msg,
         HEART_BEAT: heartbeat,
+        USER_LIST: handle_wxuser_list,
         GET_USER_LIST_SUCCSESS: handle_wxuser_list,
         GET_USER_LIST_FAIL: handle_wxuser_list,
     }
