@@ -339,9 +339,9 @@ def configure():
     """
     Looks for a config file in the following locations:
     """
-    config_files = ["config.json"]
+    config_files = ["rev_config.json"]
 
-    config_files.append(f"../.config/config.json")
+    config_files.append(f"../.config/rev_config.json")
 
     config_file = next((f for f in config_files if exists(f)), None)
     if config_file:

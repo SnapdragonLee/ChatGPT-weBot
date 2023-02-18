@@ -3,9 +3,6 @@ import websocket
 import time
 import json
 
-server_host = '127.0.0.1:5555'
-SERVER = "ws://" + server_host
-
 HEART_BEAT = 5005
 RECV_TXT_MSG = 1
 RECV_PIC_MSG = 3
@@ -245,12 +242,3 @@ def on_error(ws, error):
 def on_close(ws):
     print(ws)
     print("closed")
-
-
-websocket.enableTrace(True)
-ws = websocket.WebSocketApp(SERVER,
-                            on_open=on_open,
-                            on_message=on_message,
-                            on_error=on_error,
-                            on_close=on_close)
-ws.run_forever()
