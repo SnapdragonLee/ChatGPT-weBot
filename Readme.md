@@ -81,7 +81,7 @@ Using ChatGPT-weBot based on ChatGPT and official WeChat. [中文文档](https:/
 
 4. Monitoring WeChat message by running a server. There is 2 way to get this:
 
-   - Using injector named `微信DLL注入器V1.0.3.exe`, then choose file named `3.6.0.18-0.0.0.008.dll` to inject.
+   - Using injector named `DLLinjector_V1.0.3.exe`, then choose file named `3.6.0.18-0.0.0.008.dll` to inject.
 
      ![image-20230221044543472](assets/image-20230221044543472.png)
 
