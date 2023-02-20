@@ -1,18 +1,30 @@
 # -*- coding: utf-8 -*-
 import json
 import time
+import re
+import websocket
 
 from revChat.revChatGPT import Chatbot, configure
 
+# config
 with open(".config/config.json", encoding="utf-8") as f:
     config = json.load(f)
 f.close()
 
+server_host = config["server_host"]
+autoReply = config["autoReply"]
+groupChatKey = config["groupChatKey"]
+groupReplyMode = config["groupReplyMode"]
+privateChatKey = config["privateChatKey"]
+privateReplyMode = config["privateReplyMode"]
+helpKey = config["helpKey"]
+resetChatKey = config["resetChatKey"]
+regenerateKey = config["regenerateKey"]
+rollbackKey = config["rollbackKey"]
+
 rev_config = configure()
 
-global_dict = dict()
-
-# 标志数字
+# Signal Number
 HEART_BEAT = 5005
 RECV_TXT_MSG = 1
 RECV_PIC_MSG = 3
@@ -37,6 +49,9 @@ PERSONAL_DETAIL = 6550
 DESTROY_ALL = 9999
 AGREE_TO_FRIEND_REQUEST = 10000
 
+# data
+global_dict = dict()
+
 
 def getid():
     id = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
@@ -49,9 +64,9 @@ def get_chat_nick_p(wx_id, room_id):
         "type": CHATROOM_MEMBER_NICK,
         "wxid": wx_id,
         "roomid": room_id,
-        "content": "null",
-        "nickname": "null",
-        "ext": "null"
+        "content": "",
+        "nickname": "",
+        "ext": ""
     }
     s = json.dumps(qs)
     return s
@@ -62,7 +77,7 @@ def debug_switch():
         "id": getid(),
         "type": DEBUG_SWITCH,
         "content": "off",
-        "wxid": "ROOT",
+        "wxid": "",
     }
     s = json.dumps(qs)
     return s
@@ -85,11 +100,11 @@ def get_chatroom_memberlist():
     qs = {
         "id": getid(),
         "type": CHATROOM_MEMBER,
-        "wxid": "null",
-        "roomid": "null",
-        "content": "null",
-        "nickname": "null",
-        "ext": "null"
+        "wxid": "",
+        "roomid": "",
+        "content": "",
+        "nickname": "",
+        "ext": ""
     }
     s = json.dumps(qs)
     return s
@@ -103,7 +118,7 @@ def send_at_meg(wx_id, room_id, content, nickname):
         "roomid": room_id,
         "content": content,
         "nickname": nickname,
-        "ext": "null"
+        "ext": ""
     }
     s = json.dumps(qs)
     return s
@@ -136,10 +151,10 @@ def get_personal_info():
         "id": getid(),
         "type": PERSONAL_INFO,
         "wxid": "ROOT",
-        "roomid": "null",
-        "content": "null",
-        "nickname": "null",
-        "ext": "null"
+        "roomid": "",
+        "content": "",
+        "nickname": "",
+        "ext": ""
     }
     s = json.dumps(qs)
     return s
@@ -150,10 +165,10 @@ def get_personal_detail(wx_id):
         "id": getid(),
         "type": PERSONAL_DETAIL,
         "wxid": wx_id,
-        "roomid": "null",
-        "content": "null",
-        "nickname": "null",
-        "ext": "null"
+        "roomid": "",
+        "content": "",
+        "nickname": "",
+        "ext": ""
     }
     s = json.dumps(qs)
     return s
@@ -164,10 +179,10 @@ def send_txt_msg(text_string, wx_id):
         "id": getid(),
         "type": TXT_MSG,
         "wxid": wx_id,
-        "roomid": "null",
+        "roomid": "",
         "content": text_string,  # 文本消息内容
-        "nickname": "null",
-        "ext": "null"
+        "nickname": "",
+        "ext": ""
     }
     s = json.dumps(qs)
     return s
@@ -181,7 +196,7 @@ def send_wxuser_list():
         "roomid": "",
         "content": "",
         "nickname": "",
-        "ext": "null"
+        "ext": ""
     }
     s = json.dumps(qs)
     return s
@@ -207,41 +222,74 @@ def handle_wxuser_list(j):
             print(i, "个体", id, item["name"], item["wxcode"])
 
 
-def handle_recv_txt_msg(j):  # todo
+def handle_recv_txt_msg(j):
     print(j)
-    content: str = j["content"]
-    wx_id: str = j["wxid"]
+
+    wx_id = j["wxid"]
     room_id = ""
+    content: str = j["content"]
+
+    is_room: bool
+    is_ask: bool = False
+
     chatbot: Chatbot
 
-    if wx_id[-9] != "@":
-        chatbot = global_dict.get(tuple[wx_id, ""])
+    if len(wx_id) < 9 or wx_id[-9] != "@":
+        is_room = False
+        wx_id: str = j["wxid"]
+        chatbot = global_dict.get((wx_id, ""))
+
+        if content.startswith(privateChatKey):
+            is_ask = True
+            content = re.sub(privateChatKey, "", content)
+
     else:
-        room_id = wx_id
+        is_room = True
         wx_id = j["id1"]
-        chatbot = global_dict.get(tuple[wx_id, room_id])
+        room_id = j["wxid"]
+        chatbot = global_dict.get((wx_id, room_id))
 
-    if config["autoReply"] and (((content.startswith(config["privateChatKey"]) and config["privateReplyMode"]) or
-                                 (content.startswith(config["groupChatKey"]) and config["groupReplyMode"]))):
+        if content.startswith(groupChatKey):
+            is_ask = True
+            content = re.sub(groupChatKey, "", content)
 
-        if wx_id[-9] != "@":
+    if autoReply and is_ask and ((not is_room and privateReplyMode) or (is_room and groupReplyMode)):
+        if chatbot is None:
             chatbot = Chatbot(
                 rev_config,
                 conversation_id=None,
                 parent_id=None,
             )
-            print(j)
+            if is_room:
+                global_dict[(wx_id, room_id)] = chatbot
+            else:
+                global_dict[(wx_id, "")] = chatbot
 
-        else:  # todo groupchat recognition
-            pass
-    elif content.startswith(config["resetChatKey"]):
+        print("ask:" + content)
+        reply = ""
+        for data in chatbot.ask(
+                prompt=content,
+        ):
+            reply += data["message"][len(reply):]
+
+        if is_room:
+            ws.send(send_txt_msg(text_string=reply, wx_id=room_id))
+
+        else:
+            ws.send(send_txt_msg(text_string=reply, wx_id=wx_id))
+        print("reply:" + reply)
+
+    elif content.startswith(resetChatKey):  # todo
         pass
 
-    elif content.startswith(config["regenerateKey"]):
+    elif content.startswith(regenerateKey):  # todo
         pass
 
-    elif content.startswith(config["rollbackKey"]):
+    elif content.startswith(rollbackKey):  # todo
         pass
+
+    else:
+        return
 
 
 def handle_recv_pic_msg(j):
@@ -266,15 +314,16 @@ def on_open(ws):
     try:
         chatbot.login()
     except Exception:
-        raise Exception("exception detected, check revChatGPT login")
+        raise Exception("Exception detected, check revChatGPT login config")
     else:
-        print("ChatGPT login success!\n")
+        print("\nChatGPT login test success!\n")
 
-    # ws.send(send_wxuser_list())  # 获取微信通讯录好友列表
+    ws.send(send_wxuser_list())  # 获取微信通讯录好友列表
     # ws.send(get_chatroom_memberlist())
     ws.send(get_personal_info())
+    ws.send(get_personal_detail("wxid_udd7485eyms432"))
 
-    # ws.send(send_txt_msg("我上号了", "filehelper"))
+    # ws.send(send_txt_msg("server is online", "filehelper"))
 
     # ws.send(send_txt_msg())     # 向你的好友发送微信文本消息
 
@@ -318,9 +367,20 @@ def on_error(ws, error):
 
 
 def on_close(ws):
-    for item in global_dict:
-        print("clear conversation id:" + item.parent_id)
-        item.clear_conversations()
+    for key, value in global_dict:  # todo: still have bugs
+        print("clear conversation id:" + value.parent_id)
+        value.clear_conversations()
 
     print(ws)
     print("closed")
+
+
+server = "ws://" + server_host
+
+websocket.enableTrace(True)
+
+ws = websocket.WebSocketApp(server,
+                            on_open=on_open,
+                            on_message=on_message,
+                            on_error=on_error,
+                            on_close=on_close)

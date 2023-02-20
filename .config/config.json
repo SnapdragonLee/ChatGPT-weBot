@@ -3,7 +3,7 @@
 
   "autoReply": true,
   "groupChatKey": "-c",
-  "groupReplyMode": true,
+  "groupReplyMode": false,
   "privateChatKey": "-c",
   "privateReplyMode": true,
 

@@ -187,9 +187,7 @@ class Chatbot:
             except json.decoder.JSONDecodeError:
                 continue
             if not self.__check_fields(line):
-                print("Field missing")
-                print(line)
-                continue
+                raise Exception("Field missing. Details: " + str(line))
             message = line["message"]["content"]["parts"][0]
             conversation_id = line["conversation_id"]
             parent_id = line["message"]["id"]
@@ -234,13 +232,17 @@ class Chatbot:
         data = json.loads(response.text)
         return data["items"]
 
-    def get_msg_history(self, convo_id):
+    def get_msg_history(self, convo_id, encoding="utf-8"):
         """
         Get message history
         :param id: UUID of conversation
         """
         url = BASE_URL + f"api/conversation/{convo_id}"
         response = self.session.get(url)
+        if encoding != None:
+            response.encoding = encoding
+        else:
+            response.encoding = response.apparent_encoding
         self.__check_response(response)
         data = json.loads(response.text)
         return data
@@ -372,6 +374,7 @@ def main(config: dict):
             !config - Show the current configuration
             !rollback x - Rollback the conversation (x being the number of messages to rollback)
             !exit - Exit this program
+            !setconversation - Changes the conversation
             """,
             )
         elif command == "!reset":
@@ -389,7 +392,7 @@ def main(config: dict):
             print(f"Rolled back {rollback} messages.")
         elif command.startswith("!setconversation"):
             try:
-                chatbot.config["conversation"] = command.split(" ")[1]
+                chatbot.conversation_id = chatbot.config["conversation_id"] = command.split(" ")[1]
                 print("Conversation has been changed")
             except IndexError:
                 print("Please include conversation UUID in command")

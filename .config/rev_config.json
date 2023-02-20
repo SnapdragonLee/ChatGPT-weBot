@@ -1,3 +1,8 @@
 {
-  "session_token": ""
+  "email": "email",
+  "password": "password",
+  "proxy": "",
+  "session_token": "",
+  "access_token": "",
+  "paid": true
 }
