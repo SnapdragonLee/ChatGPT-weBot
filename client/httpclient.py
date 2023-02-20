@@ -176,11 +176,11 @@ def test():
     print(wb.get_contact_list())
     print(wb.get_memberid())
     print(wb.get_chatroom_member_list())
-    print(wb.get_member_nick('wxid_rori1zhmrd0a22', '23897241764@chatroom'))
+    print(wb.get_member_nick('liuxiaozi2947', '24395974796@chatroom'))
     print(wb.send_pic(to='19255741868@chatroom', path='C:\\test.png'))
     print(wb.send_attach(to='19255741868@chatroom', path='C:\\test.png'))
     print(wb.send_txt_msg(to='19255741868@chatroom', content='测试一下普通文字消息'))
-    print(wb.send_at_msg(wx_id='ttc9082', room_id='19255741868@chatroom', content='测试一下at消息', nickname='随便写'))
+    print(wb.send_at_msg(wx_id='liuxiaozi2947', room_id='24395974796@chatroom', content='test for new API for wechatGPT-bot', nickname='刘昀鑫 62'))
     print('test done')
 
 

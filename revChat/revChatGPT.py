@@ -7,7 +7,7 @@ from os import environ
 from os.path import exists
 
 import requests
-from OpenAIAuth.OpenAIAuth import OpenAIAuth
+from OpenAIAuth import Authenticator, Error as AuthError
 
 BASE_URL = environ.get("CHATGPT_BASE_URL") or "https://chatgpt.duti.tech/"
 
@@ -62,12 +62,9 @@ class Chatbot:
             raise Exception("No login details provided!")
         if "access_token" not in config:
             try:
-                self.__login()
-            except Exception:
-                print("Wrong username and password")
-                import sys
-
-                sys.exit()
+                self.login()
+            except AuthError as error:
+                raise error
 
     def __refresh_headers(self, access_token):
         self.session.headers.clear()
@@ -83,12 +80,12 @@ class Chatbot:
             },
         )
 
-    def __login(self):
+    def login(self):
         if (
                 "email" not in self.config or "password" not in self.config
         ) and "session_token" not in self.config:
             raise Exception("No login details provided!")
-        auth = OpenAIAuth(
+        auth = Authenticator(
             email_address=self.config.get("email"),
             password=self.config.get("password"),
             proxy=self.config.get("proxy"),
@@ -98,7 +95,7 @@ class Chatbot:
             auth.get_access_token()
             if auth.access_token is None:
                 del self.config["session_token"]
-                self.__login()
+                self.login()
                 return
         else:
             auth.begin()
@@ -112,6 +109,7 @@ class Chatbot:
             prompt,
             conversation_id=None,
             parent_id=None,
+            timeout=360,
             # gen_title=True,
     ):
         """
@@ -166,7 +164,7 @@ class Chatbot:
         response = self.session.post(
             url=BASE_URL + "api/conversation",
             data=json.dumps(data),
-            timeout=360,
+            timeout=timeout,
             stream=True,
         )
         self.__check_response(response)
@@ -200,6 +198,7 @@ class Chatbot:
                 "conversation_id": conversation_id,
                 "parent_id": parent_id,
             }
+        self.conversation_mapping[conversation_id] = parent_id
         if parent_id is not None:
             self.parent_id = parent_id
         if conversation_id is not None:
@@ -341,7 +340,7 @@ def configure():
     """
     config_files = ["rev_config.json"]
 
-    config_files.append(f"../.config/rev_config.json")
+    config_files.append(f".config/rev_config.json")
 
     config_file = next((f for f in config_files if exists(f)), None)
     if config_file:

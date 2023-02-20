@@ -1,0 +1,14 @@
+{
+  "server_host": "127.0.0.1:5555",
+
+  "autoReply": true,
+  "groupChatKey": "-c",
+  "groupReplyMode": true,
+  "privateChatKey": "-c",
+  "privateReplyMode": true,
+
+  "helpKey": "-h",
+  "resetChatKey": "-rs",
+  "regenerateKey": "-rg",
+  "rollbackKey": "-rb"
+}
