@@ -109,7 +109,13 @@ Using ChatGPT-weBot based on ChatGPT and official WeChat. [中文文档](https:/
 
      
 
-6. **Everything is ready, feel free to go online with your ChatGPT-weBot** ! No limitation, No usage counting, and no payment needed.
+6. Run `main.py` by using command:
+
+   ```
+   python main.py
+   ```
+
+   **Everything is ready, feel free to go online with your ChatGPT-weBot** ! No limitation, No usage counting, and no payment needed.
 
 
 
