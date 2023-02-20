@@ -4,7 +4,7 @@
 
 Using ChatGPT-weBot based on ChatGPT and official WeChat. [中文文档](https://github.com/SnapdragonLee/ChatGPT-weBot/Readme_ZH.md) | English
 
-<img src="assets/DALL·E  - A robot is working hard to transform, modify, and revolutionize the WeChat software.png" width="50%">
+<div align="center"> <img src="assets/DALL·E  - A robot is working hard to transform, modify, and revolutionize the WeChat software.png" width="50%"> </div>
 
 ###### Author
 
