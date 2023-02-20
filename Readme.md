@@ -119,3 +119,12 @@ Using ChatGPT-weBot based on ChatGPT and official WeChat. [中文文档](https:/
 
 1. How to get all response? You can say "continue" in your language.
 2. Have problems? Feel free to create an issue.
+
+
+
+
+
+###### Reference
+
+- [AutumnWhj/ChatGPT-wechat-bot: ChatGPT for wechat](https://github.com/AutumnWhj/ChatGPT-wechat-bot)
+- [cixingguangming55555/wechat-bot: 带二次开发接口的PC微信聊天机器人](https://github.com/cixingguangming55555/wechat-bot)
