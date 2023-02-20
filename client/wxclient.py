@@ -318,10 +318,9 @@ def on_open(ws):
     else:
         print("\nChatGPT login test success!\n")
 
-    ws.send(send_wxuser_list())  # 获取微信通讯录好友列表
+    # ws.send(send_wxuser_list())  # 获取微信通讯录好友列表
     # ws.send(get_chatroom_memberlist())
     ws.send(get_personal_info())
-    ws.send(get_personal_detail("wxid_udd7485eyms432"))
 
     # ws.send(send_txt_msg("server is online", "filehelper"))
 

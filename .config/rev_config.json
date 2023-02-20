@@ -1,6 +1,6 @@
 {
-  "email": "email",
-  "password": "password",
+  "email": "",
+  "password": "",
   "proxy": "",
   "session_token": "",
   "access_token": "",
