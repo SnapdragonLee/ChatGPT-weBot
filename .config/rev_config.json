@@ -3,5 +3,5 @@
   "email": "",
   "password": "",
   "session_token": "",
-  "paid": false
+  "paid": true
 }

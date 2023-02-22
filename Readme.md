@@ -20,10 +20,10 @@ Using ChatGPT-weBot based on ChatGPT(Non-API key call) and official WeChat hook 
 - [x] Support context-aware question answering
 - [x] **Never get banned by using official WeChat execution.**
 - [x] Set the keywords to wake up the WeChat robot in private.
-- [x] Set the keywords to wake up the WeChat robot in the group. **(have bugs)**
+- [x] Set the keywords to wake up the WeChat robot in the group.
+- [x] Get help doc in line. 
+- [x] Can set keywords to reset the previous conversation. 
 - [x] Support replying message when mentioning your bot in the group. **(have bugs)**
-- [ ] Get help doc in line. **(need work)**
-- [ ] Can set keywords to reset the previous conversation. **(need work)**
 - [ ] Regenerate to get another answer. **(need work)**
 - [ ] Rollback conversation. **(need work)**
 - [ ] Other

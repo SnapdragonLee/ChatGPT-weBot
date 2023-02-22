@@ -228,9 +228,10 @@ def handle_recv_txt_msg(j):
     wx_id = j["wxid"]
     room_id = ""
     content: str = j["content"]
+    reply = ""
 
-    is_room: bool
     is_ask: bool = False
+    is_room: bool
 
     chatbot: Chatbot
 
@@ -253,43 +254,65 @@ def handle_recv_txt_msg(j):
             is_ask = True
             content = re.sub(groupChatKey, "", content)
 
-    if autoReply and is_ask and ((not is_room and privateReplyMode) or (is_room and groupReplyMode)):
-        if chatbot is None:
-            chatbot = Chatbot(
-                rev_config,
-                conversation_id=None,
-                parent_id=None,
-            )
+    if autoReply and ((not is_room and privateReplyMode) or (is_room and groupReplyMode)):
+        if is_ask:
+            if chatbot is None:
+                chatbot = Chatbot(
+                    rev_config,
+                    conversation_id=None,
+                    parent_id=None,
+                )
+                if is_room:
+                    global_dict[(wx_id, room_id)] = chatbot
+                else:
+                    global_dict[(wx_id, "")] = chatbot
+
+            print("ask:" + content)
+            for data in chatbot.ask(
+                    prompt=content,
+            ):
+                reply += data["message"][len(reply):]
+
+        elif content.startswith(helpKey):
             if is_room:
-                global_dict[(wx_id, room_id)] = chatbot
+                reply = str(
+                    b'\xe6\xac\xa2\xe8\xbf\x8e\xe4\xbd\xbf\xe7\x94\xa8 ChatGPT-weBot\xef\xbc\x8c\xe6\x9c\xac\xe9'
+                    b'\xa1\xb9\xe7\x9b\xae\xe5\x9c\xa8 github \xe5\x90\x8c\xe5\x90\x8d\xe5\xbc\x80\xe6\xba\x90\n',
+                    'utf-8') + helpKey + " 查看可用命令帮助\n" + groupChatKey + " 唤醒群内机器人\n" + resetChatKey + \
+                        " 重置上下文\n" + regenerateKey + " 重新生成答案\n" + rollbackKey + " +数字n 回滚到倒数第n个问题"
+
             else:
-                global_dict[(wx_id, "")] = chatbot
+                reply = str(
+                    b'\xe6\xac\xa2\xe8\xbf\x8e\xe4\xbd\xbf\xe7\x94\xa8 ChatGPT-weBot\xef\xbc\x8c\xe6\x9c\xac\xe9'
+                    b'\xa1\xb9\xe7\x9b\xae\xe5\x9c\xa8 github \xe5\x90\x8c\xe5\x90\x8d\xe5\xbc\x80\xe6\xba\x90\n',
+                    'utf-8') + helpKey + " 查看可用命令帮助\n" + privateChatKey + " 唤醒机器人\n" + resetChatKey + \
+                        " 重置上下文\n" + regenerateKey + " 重新生成答案\n" + rollbackKey + " +数字n 回滚到倒数第n个问题"
+            time.sleep(1.5)
 
-        print("ask:" + content)
-        reply = ""
-        for data in chatbot.ask(
-                prompt=content,
-        ):
-            reply += data["message"][len(reply):]
+        elif content.startswith(resetChatKey):
+            if chatbot is not None:
+                chatbot.clear_conversations()
+                del (global_dict[(wx_id, room_id)])
+                reply = "重置完成"
+            else:
+                reply = "您还没有开始第一次对话"
+                time.sleep(1.5)
 
-        if is_room:
-            ws.send(send_txt_msg(text_string=reply, wx_id=room_id))
+        elif content.startswith(regenerateKey):  # todo
+            pass
 
+        elif content.startswith(rollbackKey):  # todo
+            pass
         else:
-            ws.send(send_txt_msg(text_string=reply, wx_id=wx_id))
-        print("reply:" + reply)
-
-    elif content.startswith(resetChatKey):  # todo
-        pass
-
-    elif content.startswith(regenerateKey):  # todo
-        pass
-
-    elif content.startswith(rollbackKey):  # todo
-        pass
-
+            return
     else:
         return
+
+    if is_room:
+        ws.send(send_txt_msg(text_string=reply.strip(), wx_id=room_id))
+    else:
+        ws.send(send_txt_msg(text_string=reply.strip(), wx_id=wx_id))
+    print("reply:" + reply)
 
 
 def handle_recv_pic_msg(j):
@@ -366,9 +389,10 @@ def on_error(ws, error):
 
 
 def on_close(ws):
-    for key, value in global_dict:  # todo: still have bugs
+    for key, value in global_dict.items():  # todo: still have bugs
         print("clear conversation id:" + value.parent_id)
         value.clear_conversations()
+        del value
 
     print(ws)
     print("closed")
