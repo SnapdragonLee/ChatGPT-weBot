@@ -2,7 +2,7 @@
 
 
 
-Using ChatGPT-weBot based on ChatGPT and official WeChat. [中文文档](https://github.com/SnapdragonLee/ChatGPT-weBot/Readme_ZH.md) | English
+Using ChatGPT-weBot based on ChatGPT(Non-API key call) and official WeChat hook interface. [中文文档](./Readme_ZH.md) | English
 
 <div align="center"> <img src="assets/DALL·E  - A robot is working hard to transform, modify, and revolutionize the WeChat software.png" width="50%"> </div>
 
@@ -19,6 +19,7 @@ Using ChatGPT-weBot based on ChatGPT and official WeChat. [中文文档](https:/
 - [x] Support conversation.
 - [x] Support context-aware question answering
 - [x] **Never get banned by using official WeChat execution.**
+- [x] Set the keywords to wake up the WeChat robot in private.
 - [x] Set the keywords to wake up the WeChat robot in the group. **(have bugs)**
 - [x] Support replying message when mentioning your bot in the group. **(have bugs)**
 - [ ] Get help doc in line. **(need work)**
@@ -35,15 +36,16 @@ Using ChatGPT-weBot based on ChatGPT and official WeChat. [中文文档](https:/
 
 ```
 {
-  // Setting hast running locally (only local)
+  // Setting host running locally (only local)
   "server_host": "127.0.0.1:5555",
 
+  // Whether to enable ChatGPT auto-reply function
   "autoReply": true,
-  // Setting keyword to wake up in group chat
+  // Setting keyword to wake up bot in group chat
   "groupChatKey": "-c",
   // Using reply mode in group chat
   "groupReplyMode": false,
-  // Setting keyword to wake up in private chat
+  // Setting keyword to wake up bot in private chat
   "privateChatKey": "-c",
   // Using reply mode in private chat
   "privateReplyMode": true,
@@ -79,7 +81,7 @@ Using ChatGPT-weBot based on ChatGPT and official WeChat. [中文文档](https:/
 
    
 
-4. Monitoring WeChat message by running a server. There is 2 way to get this:
+4. Monitoring WeChat message by running a server. Here are two methods to achieve this, **please *choose 1 method*** :
 
    - Using injector named `DLLinjector_V1.0.3.exe`, then choose file named `3.6.0.18-0.0.0.008.dll` to inject.
 
@@ -87,7 +89,7 @@ Using ChatGPT-weBot based on ChatGPT and official WeChat. [中文文档](https:/
 
      
 
-   - Running `funtool_3.6.0.18-1.0.0013.exe`, and press `Start` .
+   - Running `funtool_3.6.0.18-1.0.0013.exe` , and press `Start` .
 
      ![image-20230221044609319](assets/image-20230221044609319.png)
 
@@ -95,7 +97,7 @@ Using ChatGPT-weBot based on ChatGPT and official WeChat. [中文文档](https:/
 
 5. The last step is fill json files listed in `.config/` . 
 
-   - In `config.json` ,  you can configure your custom options based on your preferences.
+   - In `config.json` ,  you need to configure your custom options based on your preferences.
 
    - In `rev_config.json` , you need to fill your ChatGPT login information by *choosing 1 method*: 
 
@@ -115,7 +117,9 @@ Using ChatGPT-weBot based on ChatGPT and official WeChat. [中文文档](https:/
    python main.py
    ```
 
-   **Everything is ready, feel free to go online with your ChatGPT-weBot** ! No limitation, No usage counting, and no payment needed.
+   **Everything is ready, feel free to go online with your ChatGPT-weBot !** 
+   
+   No limitation, No usage counting, and no payment needed.
 
 
 
@@ -125,8 +129,6 @@ Using ChatGPT-weBot based on ChatGPT and official WeChat. [中文文档](https:/
 
 1. How to get all response? You can say "continue" in your language.
 2. Have problems? Feel free to create an issue.
-
-
 
 
 
