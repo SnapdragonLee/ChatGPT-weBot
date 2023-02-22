@@ -1,8 +1,7 @@
 {
+  "proxy": "",
   "email": "",
   "password": "",
-  "proxy": "",
   "session_token": "",
-  "access_token": "",
-  "paid": true
+  "paid": false
 }
