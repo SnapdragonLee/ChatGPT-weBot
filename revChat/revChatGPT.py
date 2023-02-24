@@ -1,9 +1,9 @@
 """
 Standard ChatGPT
 """
+
 import json
 import uuid
-from os import environ
 from os.path import exists
 
 import requests
@@ -13,11 +13,23 @@ BASE_URL = "https://chatgpt.duti.tech/"
 
 
 class Error(Exception):
-    """Base class for exceptions in this module."""
+    """Base class for exceptions in this module.
+    # Error codes:
+    # -1: User error
+    # 0: Unknown error
+    # 1: Server error
+    # 2: Rate limit error
+    # 3: Invalid request error
+    """
 
     source: str
     message: str
     code: int
+
+    def __init__(self, source: str = None, message: str = None, code: int = 0):
+        self.source = source
+        self.message = message
+        self.code = code
 
 
 class Chatbot:
@@ -30,9 +42,12 @@ class Chatbot:
             config,
             conversation_id=None,
             parent_id=None,
+            session_client=None,
     ) -> None:
+        self.prompt = None
         self.config = config
-        self.session = requests.Session()
+        self.session = session_client() if session_client else requests.Session()
+
         if "proxy" in config:
             if isinstance(config["proxy"], str) is False:
                 raise Exception("Proxy must be a string!")
@@ -40,27 +55,27 @@ class Chatbot:
                 "http": config["proxy"],
                 "https": config["proxy"],
             }
+
             self.session.proxies.update(proxies)
-        if "verbose" in config:
-            if not isinstance(config["verbose"], bool):
-                raise Exception("Verbose must be a boolean!")
-            self.verbose = config["verbose"]
-        else:
-            self.verbose = False
         self.conversation_id = conversation_id
         self.parent_id = parent_id
         self.conversation_mapping = {}
         self.conversation_id_prev_queue = []
         self.parent_id_prev_queue = []
-        if "email" in config and "password" in config:
+        self.prompt_prev_queue = []
+
+        self.__check_credentials()
+
+    def __check_credentials(self):
+        if "email" in self.config and "password" in self.config:
             pass
-        elif "access_token" in config:
-            self.__refresh_headers(config["access_token"])
-        elif "session_token" in config:
+        elif "access_token" in self.config:
+            self.__refresh_headers(self.config["access_token"])
+        elif "session_token" in self.config:
             pass
         else:
             raise Exception("No login details provided!")
-        if "access_token" not in config:
+        if "access_token" not in self.config:
             try:
                 self.login()
             except AuthError as error:
@@ -110,27 +125,25 @@ class Chatbot:
             conversation_id=None,
             parent_id=None,
             timeout=360,
-            # gen_title=True,
     ):
         """
         Ask a question to the chatbot
         :param prompt: String
         :param conversation_id: UUID
         :param parent_id: UUID
-        :param gen_title: Boolean
+        :param timeout: time to close connection
         """
+        if prompt is not None:
+            self.prompt = prompt
         if parent_id is not None and conversation_id is None:
             error = Error()
             error.source = "User"
             error.message = "conversation_id must be set once parent_id is set"
             error.code = -1
             raise error
-            # user-specified covid and parid, check skipped to avoid rate limit
 
-        if (
-                conversation_id is not None and conversation_id != self.conversation_id
-        ):  # Update to new conversations
-            self.parent_id = None  # Resetting parent_id
+        if conversation_id is not None and conversation_id != self.conversation_id:
+            self.parent_id = None
 
         conversation_id = conversation_id or self.conversation_id
         parent_id = parent_id or self.parent_id
@@ -147,7 +160,7 @@ class Chatbot:
                 {
                     "id": str(uuid.uuid4()),
                     "role": "user",
-                    "content": {"content_type": "text", "parts": [prompt]},
+                    "content": {"content_type": "text", "parts": [self.prompt]},
                 },
             ],
             "conversation_id": conversation_id,
@@ -156,11 +169,11 @@ class Chatbot:
             if not self.config.get("paid")
             else "text-davinci-002-render-paid",
         }
-        # new_conv = data["conversation_id"] is None
-        self.conversation_id_prev_queue.append(
-            data["conversation_id"],
-        )  # for rollback
+
+        self.conversation_id_prev_queue.append(data["conversation_id"], )
         self.parent_id_prev_queue.append(data["parent_message_id"])
+        self.prompt_prev_queue.append(self.prompt)
+
         response = self.session.post(
             url=BASE_URL + "api/conversation",
             data=json.dumps(data),
@@ -170,6 +183,8 @@ class Chatbot:
         self.__check_response(response)
         for line in response.iter_lines():
             line = str(line)[2:-1]
+            if line == "Internal Server Error":
+                raise Exception("Error: " + str(line))
             if line == "" or line is None:
                 continue
             if "data: " in line:
@@ -177,17 +192,24 @@ class Chatbot:
             if line == "[DONE]":
                 break
 
-            # Replace accidentally escaped double quotes
             line = line.replace('\\"', '"')
             line = line.replace("\\'", "'")
             line = line.replace("\\\\", "\\")
-            # Try parse JSON
+
             try:
                 line = json.loads(line)
             except json.decoder.JSONDecodeError:
                 continue
             if not self.__check_fields(line):
-                raise Exception("Field missing. Details: " + str(line))
+                if (
+                        line.get("details")
+                        == "Too many requests in 1 hour. Try again later."
+                ):
+                    raise Error(source="ask", message=line.get("details"), code=2)
+                raise Error(source="ask", message="Field missing", code=1)
+
+            if line["message"]["author"]["role"] != "assistant":
+                continue
             message = line["message"]["content"]["parts"][0]
             conversation_id = line["conversation_id"]
             parent_id = line["message"]["id"]
@@ -202,7 +224,8 @@ class Chatbot:
         if conversation_id is not None:
             self.conversation_id = conversation_id
 
-    def __check_fields(self, data: dict) -> bool:
+    @staticmethod
+    def __check_fields(data: dict) -> bool:
         try:
             data["message"]["content"]
         except TypeError:
@@ -211,7 +234,8 @@ class Chatbot:
             return False
         return True
 
-    def __check_response(self, response):
+    @staticmethod
+    def __check_response(response):
         if response.status_code != 200:
             print(response.text)
             error = Error()
@@ -232,18 +256,17 @@ class Chatbot:
         data = json.loads(response.text)
         return data["items"]
 
-    def get_msg_history(self, convo_id, encoding="utf-8"):
+    def get_msg_history(self, convo_id, encoding=None):
         """
         Get message history
-        :param id: UUID of conversation
+        :param convo_id: UUID of conversation
+        :param encoding: String
         """
         url = BASE_URL + f"api/conversation/{convo_id}"
         response = self.session.get(url)
-        if encoding != None:
-            response.encoding = encoding
-        else:
-            response.encoding = response.apparent_encoding
         self.__check_response(response)
+        if encoding is not None:
+            response.encoding = encoding
         data = json.loads(response.text)
         return data
 
@@ -263,17 +286,17 @@ class Chatbot:
     def change_title(self, convo_id, title):
         """
         Change title of conversation
-        :param id: UUID of conversation
+        :param convo_id: UUID of conversation
         :param title: String
         """
         url = BASE_URL + f"api/conversation/{convo_id}"
-        response = self.session.patch(url, data=f'{{"title": "{title}"}}')
+        response = self.session.patch(url, data=json.dumps({"title": title}))
         self.__check_response(response)
 
     def delete_conversation(self, convo_id):
         """
         Delete conversation
-        :param id: UUID of conversation
+        :param convo_id: UUID of conversation
         """
         url = BASE_URL + f"api/conversation/{convo_id}"
         response = self.session.patch(url, data='{"is_visible": false}')
@@ -310,29 +333,27 @@ class Chatbot:
         for _ in range(num):
             self.conversation_id = self.conversation_id_prev_queue.pop()
             self.parent_id = self.parent_id_prev_queue.pop()
+            self.prompt_prev_queue.pop()
+
+            self.prompt = self.prompt_prev_queue[-1] if len(self.prompt_prev_queue) > 0 else None
 
 
 def get_input(prompt):
     """
     Multiline input function.
     """
-    # Display the prompt
     print(prompt, end="")
 
-    # Initialize an empty list to store the input lines
     lines = []
 
-    # Read lines of input until the user enters an empty line
     while True:
         line = input()
         if line == "":
             break
         lines.append(line)
 
-    # Join the lines, separated by newlines, and store the result
     user_input = "\n".join(lines)
 
-    # Return the input
     return user_input
 
 
@@ -340,9 +361,7 @@ def configure():
     """
     Looks for a config file in the following locations:
     """
-    config_files = ["rev_config.json"]
-
-    config_files.append(f".config/rev_config.json")
+    config_files = [f".config/rev_config.json"]
 
     config_file = next((f for f in config_files if exists(f)), None)
     if config_file:
@@ -383,7 +402,6 @@ def main(config: dict):
         elif command == "!config":
             print(json.dumps(chatbot.config, indent=4))
         elif command.startswith("!rollback"):
-            # Default to 1 rollback if no number is specified
             try:
                 rollback = int(command.split(" ")[1])
             except IndexError:

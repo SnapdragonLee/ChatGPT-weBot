@@ -47,7 +47,7 @@ PERSONAL_INFO = 6500
 PERSONAL_DETAIL = 6550
 
 DESTROY_ALL = 9999
-AGREE_TO_FRIEND_REQUEST = 10000
+OTHER_REQUEST = 10000
 
 # data
 global_dict = dict()
@@ -227,7 +227,7 @@ def handle_recv_txt_msg(j):
 
     wx_id = j["wxid"]
     room_id = ""
-    content: str = j["content"]
+    content: str = j["content"].strip()
     reply = ""
 
     is_ask: bool = False
@@ -298,11 +298,28 @@ def handle_recv_txt_msg(j):
                 reply = "您还没有开始第一次对话"
                 time.sleep(1.5)
 
-        elif content.startswith(regenerateKey):  # todo
-            pass
+        elif content.startswith(regenerateKey):
+            if chatbot is None or chatbot.prompt is None:
+                reply = "您还没有问过问题"
+            else:
+                print("ask:" + chatbot.prompt)
+                for data in chatbot.ask(
+                        prompt=None,
+                ):
+                    reply += data["message"][len(reply):]
 
-        elif content.startswith(rollbackKey):  # todo
-            pass
+        elif content.startswith(rollbackKey):
+            if chatbot is None:
+                reply = "您还没有问过问题"
+            num = re.sub(rollbackKey + "\\s+", "", content)
+            if num.isdigit():
+                if len(chatbot.prompt_prev_queue) < int(num):
+                    reply = "无法回滚到" + num + "个问题之前"
+
+                else:
+                    chatbot.rollback_conversation(int(num))
+                    reply = "已回滚到" + num + "个问题之前"
+
         else:
             return
     else:
