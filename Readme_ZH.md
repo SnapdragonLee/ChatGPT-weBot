@@ -2,6 +2,8 @@
 
 
 
+[TOC]
+
 使用基于 ChatGPT (非API-KEY调用) 和 官方微信 hook 接口 的 ChatGPT-weBot 机器人。中文文档 | [English](./Readme.md)
 
 <div align="center"> <img src="assets/DALL·E  - A robot is working hard to transform, modify, and revolutionize the WeChat software.png" width="50%"> </div>
@@ -21,18 +23,18 @@
 - [x] **使用官方微信软件执行，信息来源方面永不封禁**
 - [x] 设置关键字在私聊中唤醒微信机器人
 - [x] 设置关键字在群中唤醒微信机器人
+- [x] 在群聊中提到您的机器人时，支持回复@的消息**（有Bug）**
 - [x] 在线获取帮助文档
-- [x] 可以设置关键字以重置之前的对话
-- [x] 在群聊中提到您的机器人时，支持回复消息（有Bug）
-- [ ] 重新生成另一个答案（待完善）
-- [ ] 回滚对话（待完善）
+- [x] 设置关键字以重置之前的对话
+- [x] 重新生成答案
+- [x] 回滚对话
 - [ ] 其他
 
 
 
 
 
-## 默认配置
+## 默认配置 （请在启动前仔细阅读，所有配置文件在.config中）
 
 ```
 {
@@ -125,6 +127,31 @@
 
 1. 如何获取所有的回复？您可以用您的语言说 “请继续”。
 2. 遇到问题了吗？随时来创建一个 issue 进行发布。
+
+
+
+## 已经 star 本仓库的用户
+
+[![Stargazers repo roster for @SnapdragonLee/ChatGPT-weBot](https://reporoster.com/stars/dark/SnapdragonLee/ChatGPT-weBot)](https://github.com/SnapdragonLee/ChatGPT-weBot/stargazers)
+
+
+
+## star 用户数量 / 时间变化图
+
+[![Stargazers over time](https://starchart.cc/SnapdragonLee/ChatGPT-weBot.svg)](https://starchart.cc/SnapdragonLee/ChatGPT-weBot) 
+
+
+
+## 日志
+
+- 2023年2月25日 完成所有功能的 API 函数并修复了其它的错误
+- 2023年2月23日 完成了一些在功能列表中列出的 API 并进行了部分调试
+- 2023年2月23日 修复连接到逆向服务器时的数据流问题
+- 2023年2月21日 报告 ChatGPT API 的问题
+- 2023年2月20日 发布 v0.90-dev 版本，在微信上可以与 ChatGPT 进行基本的对话 
+- 2023年2月17日 开始开发流程
+
+
 
 
 

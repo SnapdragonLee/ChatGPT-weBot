@@ -2,6 +2,8 @@
 
 
 
+[TOC]
+
 Using ChatGPT-weBot based on ChatGPT(Non-API key call) and official WeChat hook interface. [中文文档](./Readme_ZH.md) | English
 
 <div align="center"> <img src="assets/DALL·E  - A robot is working hard to transform, modify, and revolutionize the WeChat software.png" width="50%"> </div>
@@ -21,18 +23,18 @@ Using ChatGPT-weBot based on ChatGPT(Non-API key call) and official WeChat hook 
 - [x] **Never get banned by using official WeChat execution.**
 - [x] Set the keywords to wake up the WeChat robot in private.
 - [x] Set the keywords to wake up the WeChat robot in the group.
+- [x] Support replying *at-message* when mentioning your bot in the group. **(have bugs)**
 - [x] Get help doc in line. 
-- [x] Can set keywords to reset the previous conversation. 
-- [x] Support replying message when mentioning your bot in the group. **(have bugs)**
-- [ ] Regenerate to get another answer. **(need work)**
-- [ ] Rollback conversation. **(need work)**
+- [x] Set keywords to reset the previous conversation. 
+- [x] Regenerate to get another answer. 
+- [x] Rollback conversation. 
 - [ ] Other
 
 
 
 
 
-## Default configs
+## Default configs (Follow steps before you start server)
 
 ```
 {
@@ -129,6 +131,31 @@ Using ChatGPT-weBot based on ChatGPT(Non-API key call) and official WeChat hook 
 
 1. How to get all response? You can say "continue" in your language.
 2. Have problems? Feel free to create an issue.
+
+
+
+## Who has starred
+
+[![Stargazers repo roster for @SnapdragonLee/ChatGPT-weBot](https://reporoster.com/stars/dark/SnapdragonLee/ChatGPT-weBot)](https://github.com/SnapdragonLee/ChatGPT-weBot/stargazers)
+
+
+
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/SnapdragonLee/ChatGPT-weBot.svg)](https://starchart.cc/SnapdragonLee/ChatGPT-weBot) 
+
+
+
+## Log
+
+- 2023.2.25 Complete all API function on features and Debugs for errors
+- 2023.2.23 Accomplish some API listed on features
+- 2023.2.23 Fix streaming issue when connecting to reverse server
+- 2023.2.21 Report issue on ChatGPT API
+- 2023.2.20 v0.90-dev released, for basic ChatGPT API usage on WeChat
+- 2023.2.17 Start to develop the whole process
+
+
 
 
 
