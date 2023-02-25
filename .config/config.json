@@ -3,9 +3,11 @@
 
   "autoReply": true,
   "groupChatKey": "-c",
-  "groupReplyMode": false,
+  "grpReplyMode": true,
+  "grpCitationMode": true,
   "privateChatKey": "-c",
-  "privateReplyMode": true,
+  "prvReplyMode": true,
+  "prvCitationMode": false,
 
   "helpKey": "-h",
   "resetChatKey": "-rs",

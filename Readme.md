@@ -46,11 +46,15 @@ Using ChatGPT-weBot based on ChatGPT(Non-API key call) and official WeChat hook 
   // Setting keyword to wake up bot in group chat
   "groupChatKey": "-c",
   // Using reply mode in group chat
-  "groupReplyMode": false,
+  "grpReplyMode": false,
+  // Origin question quote on head of answer in group chat
+  "grpCitationMode": true,
   // Setting keyword to wake up bot in private chat
   "privateChatKey": "-c",
   // Using reply mode in private chat
-  "privateReplyMode": true,
+  "prvReplyMode": true,
+  // Origin question quote on head of answer in private chat
+  "prvCitationMode": false,
 
   // View available command help
   "helpKey": "-h",
@@ -148,6 +152,7 @@ Using ChatGPT-weBot based on ChatGPT(Non-API key call) and official WeChat hook 
 
 ## Log
 
+- 2023.2.25 Add the option in `config.json` to quote the original question before answering 
 - 2023.2.25 Complete all API function on features and Debugs for errors
 - 2023.2.23 Accomplish some API listed on features
 - 2023.2.23 Fix streaming issue when connecting to reverse server

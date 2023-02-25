@@ -14,9 +14,11 @@ f.close()
 server_host = config["server_host"]
 autoReply = config["autoReply"]
 groupChatKey = config["groupChatKey"]
-groupReplyMode = config["groupReplyMode"]
+grpReplyMode = config["grpReplyMode"]
+grpCitationMode = config["grpCitationMode"]
 privateChatKey = config["privateChatKey"]
-privateReplyMode = config["privateReplyMode"]
+prvReplyMode = config["prvReplyMode"]
+prvCitationMode = config["prvCitationMode"]
 helpKey = config["helpKey"]
 resetChatKey = config["resetChatKey"]
 regenerateKey = config["regenerateKey"]
@@ -254,7 +256,7 @@ def handle_recv_txt_msg(j):
             is_ask = True
             content = re.sub(groupChatKey, "", content)
 
-    if autoReply and ((not is_room and privateReplyMode) or (is_room and groupReplyMode)):
+    if autoReply and ((not is_room and prvReplyMode) or (is_room and grpReplyMode)):
         if is_ask:
             if chatbot is None:
                 chatbot = Chatbot(
@@ -272,6 +274,9 @@ def handle_recv_txt_msg(j):
                     prompt=content,
             ):
                 reply += data["message"][len(reply):]
+
+            if (grpCitationMode and is_room) or (prvCitationMode and not is_room):
+                reply = content + "\n---------\n" + reply
 
         elif content.startswith(helpKey):
             if is_room:
@@ -301,6 +306,7 @@ def handle_recv_txt_msg(j):
         elif content.startswith(regenerateKey):
             if chatbot is None or chatbot.prompt is None:
                 reply = "您还没有问过问题"
+                time.sleep(1.5)
             else:
                 print("ask:" + chatbot.prompt)
                 for data in chatbot.ask(
@@ -311,14 +317,20 @@ def handle_recv_txt_msg(j):
         elif content.startswith(rollbackKey):
             if chatbot is None:
                 reply = "您还没有问过问题"
-            num = re.sub(rollbackKey + "\\s+", "", content)
-            if num.isdigit():
-                if len(chatbot.prompt_prev_queue) < int(num):
-                    reply = "无法回滚到" + num + "个问题之前"
 
+            else:
+                num = re.sub(rollbackKey + "\\s+", "", content)
+                if num.isdigit():
+                    if len(chatbot.prompt_prev_queue) < int(num):
+                        reply = "无法回滚到" + num + "个问题之前"
+
+                    else:
+                        chatbot.rollback_conversation(int(num))
+                        reply = "已回滚到" + num + "个问题之前"
                 else:
-                    chatbot.rollback_conversation(int(num))
-                    reply = "已回滚到" + num + "个问题之前"
+                    reply = "请在回滚指令后输入有效数字"
+
+            time.sleep(1.5)
 
         else:
             return
@@ -360,6 +372,7 @@ def on_open(ws):
 
     # ws.send(send_wxuser_list())  # 获取微信通讯录好友列表
     # ws.send(get_chatroom_memberlist())
+
     ws.send(get_personal_info())
 
     # ws.send(send_txt_msg("server is online", "filehelper"))

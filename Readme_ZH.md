@@ -46,11 +46,15 @@
   // 在群聊中设置唤醒机器人关键词
   "groupChatKey": "-c",
   // 在群聊中响应回复
-  "groupReplyMode": false,
+  "grpReplyMode": false,
+  // 在群聊回答前添加源问题格式
+  "grpCitationMode": true,
   // 在私聊中设置唤醒机器人关键词
   "privateChatKey": "-c",
   // 在私聊中响应回复
-  "privateReplyMode": true,
+  "prvReplyMode": true,
+  // 在群聊回答前添加源问题格式
+  "prvCitationMode": false,
 
   // 查看可用命令帮助
   "helpKey": "-h",
@@ -144,6 +148,7 @@
 
 ## 日志
 
+- 2023年2月25日 `config.json` 中添加回答前引用原问题选项
 - 2023年2月25日 完成所有功能的 API 函数并修复了其它的错误
 - 2023年2月23日 完成了一些在功能列表中列出的 API 并进行了部分调试
 - 2023年2月23日 修复连接到逆向服务器时的数据流问题
