@@ -9,7 +9,8 @@ from os.path import exists
 import requests
 from OpenAIAuth import Authenticator, Error as AuthError
 
-BASE_URL = "https://chatgpt.duti.tech/"
+# BASE_URL = "https://chatgpt.duti.tech/"
+BASE_URL = "https://apps.openai.com/"
 
 
 class Error(Exception):
