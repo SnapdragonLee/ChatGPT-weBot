@@ -341,7 +341,8 @@ def handle_recv_txt_msg(j):
         return
 
     if is_room:
-        ws.send(send_txt_msg(text_string=reply.strip(), wx_id=room_id))
+        # ws.send(send_txt_msg(text_string=reply.strip(), wx_id=room_id))
+        ws.send(send_at_meg(wx_id=wx_id, room_id=room_id, content=reply.strip(), nickname=wx_id))
     else:
         ws.send(send_txt_msg(text_string=reply.strip(), wx_id=wx_id))
     print("reply:" + reply)
