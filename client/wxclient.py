@@ -257,28 +257,7 @@ def handle_recv_txt_msg(j):
             content = re.sub(groupChatKey, "", content)
 
     if autoReply and ((not is_room and prvReplyMode) or (is_room and grpReplyMode)):
-        if is_ask:
-            if chatbot is None:
-                chatbot = Chatbot(
-                    rev_config,
-                    conversation_id=None,
-                    parent_id=None,
-                )
-                if is_room:
-                    global_dict[(wx_id, room_id)] = chatbot
-                else:
-                    global_dict[(wx_id, "")] = chatbot
-
-            print("ask:" + content)
-            for data in chatbot.ask(
-                    prompt=content,
-            ):
-                reply += data["message"][len(reply):]
-
-            if (grpCitationMode and is_room) or (prvCitationMode and not is_room):
-                reply = content + "\n---------\n" + reply
-
-        elif content.startswith(helpKey):
+        if content.startswith(helpKey):
             if is_room:
                 reply = str(
                     b'\xe6\xac\xa2\xe8\xbf\x8e\xe4\xbd\xbf\xe7\x94\xa8 ChatGPT-weBot\xef\xbc\x8c\xe6\x9c\xac\xe9'
@@ -314,6 +293,9 @@ def handle_recv_txt_msg(j):
                 ):
                     reply += data["message"][len(reply):]
 
+                if (grpCitationMode and is_room) or (prvCitationMode and not is_room):
+                    reply = content + "\n- - - - - - - -\n" + reply.strip()
+
         elif content.startswith(rollbackKey):
             if chatbot is None:
                 reply = "您还没有问过问题"
@@ -331,6 +313,27 @@ def handle_recv_txt_msg(j):
                     reply = "请在回滚指令后输入有效数字"
 
             time.sleep(1.5)
+
+        elif is_ask:
+            if chatbot is None:
+                chatbot = Chatbot(
+                    rev_config,
+                    conversation_id=None,
+                    parent_id=None,
+                )
+                if is_room:
+                    global_dict[(wx_id, room_id)] = chatbot
+                else:
+                    global_dict[(wx_id, "")] = chatbot
+
+            print("ask:" + content)
+            for data in chatbot.ask(
+                    prompt=content,
+            ):
+                reply += data["message"][len(reply):]
+
+            if (grpCitationMode and is_room) or (prvCitationMode and not is_room):
+                reply = content + "\n- - - - - - - -\n" + reply.strip()
 
         else:
             return

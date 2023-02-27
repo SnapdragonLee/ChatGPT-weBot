@@ -83,7 +83,7 @@ Using ChatGPT-weBot based on ChatGPT(Non-API key call) and official WeChat hook 
 
 2. Download package from Github Releases.
 
-3. Install `WeChat-3.6.0.18.exe` on your computer, **if your version is higher than 3.6.0.18, you can downgrade instantly.** Then get your account online.
+3. Install `WeChat-3.6.0.18.exe` on your computer, **if your version is higher than 3.6.0.18, you can downgrade instantly.** Then get your account online. You can also download zip version of WeChat. **If you wanna dual-call WeChat, modify `./dual-start.bat` file guiding by annotation.**
 
    
 
@@ -152,6 +152,7 @@ Using ChatGPT-weBot based on ChatGPT(Non-API key call) and official WeChat hook 
 
 ## Log
 
+- 2023.2.27 Add zip version of WeChat and `dual-start.bat`,  fix the bug that prevents other operations when the response keyword is empty.
 - 2023.2.25 Add the option in `config.json` to quote the original question before answering 
 - 2023.2.25 Complete all API function on features and Debugs for errors
 - 2023.2.23 Accomplish some API listed on features
