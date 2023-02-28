@@ -294,7 +294,7 @@ def handle_recv_txt_msg(j):
                     reply += data["message"][len(reply):]
 
                 if (grpCitationMode and is_room) or (prvCitationMode and not is_room):
-                    reply = content + "\n- - - - - - - -\n" + reply.strip()
+                    reply = chatbot.prompt + "\n- - - - - - - -\n" + reply.strip()
 
         elif content.startswith(rollbackKey):
             if chatbot is None:
