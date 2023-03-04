@@ -2,12 +2,18 @@
   "server_host": "127.0.0.1:5555",
 
   "autoReply": true,
+
   "groupChatKey": "-c",
   "grpReplyMode": true,
   "grpCitationMode": true,
   "privateChatKey": "-c",
   "prvReplyMode": true,
   "prvCitationMode": false,
+
+  "stableDiffRly": true,
+  "groupImgKey": "-i",
+  "privateImgKey": "-i",
+  "isCached": true,
 
   "helpKey": "-h",
   "resetChatKey": "-rs",

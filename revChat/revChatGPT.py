@@ -4,9 +4,9 @@ Standard ChatGPT
 
 import json
 import uuid
-from os.path import exists
-
 import requests
+
+from os.path import exists
 from OpenAIAuth import Authenticator, Error as AuthError
 
 # BASE_URL = "https://chatgpt.duti.tech/"
