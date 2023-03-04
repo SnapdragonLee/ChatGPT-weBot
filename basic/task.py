@@ -123,8 +123,8 @@ class ImgTask:
                     file_object.write(source_str)
                 file_object.close()
 
-                time.sleep(1.0)
                 self.ws.send(send_pic_msg(wx_id=self.room_id if self.is_room else self.wx_id, content=os.path.join(os.path.abspath(cache_dir), filename)))
+                time.sleep(1.0)
                 if isCached:
                     print("Image cached! Name: " + cache_dir + filename)
                 else:
