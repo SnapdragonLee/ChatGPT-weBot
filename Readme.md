@@ -4,7 +4,7 @@
 
 [TOC]
 
-Using ChatGPT-weBot based on ChatGPT(Non-API key call) and official WeChat hook interface. [中文文档](./Readme_ZH.md) | English
+Using ChatGPT-weBot based on ChatGPT(Non-API key call), Stable Diffusion AI drawing and official WeChat hook interface. [中文文档](./Readme_ZH.md) | English
 
 <div align="center"> <img src="assets/DALL·E  - A robot is working hard to transform, modify, and revolutionize the WeChat software.png" width="50%"> </div>
 
@@ -18,16 +18,18 @@ Using ChatGPT-weBot based on ChatGPT(Non-API key call) and official WeChat hook 
 
 ## Support & Features
 
-- [x] Support conversation.
+- [x] Support conversation
 - [x] Support context-aware question answering
-- [x] **Never get banned by using official WeChat execution.**
-- [x] Set the keywords to wake up the WeChat robot in private.
-- [x] Set the keywords to wake up the WeChat robot in the group.
-- [x] Support replying *at-message* when mentioning your bot in the group. **(have bugs)**
-- [x] Get help doc in line. 
-- [x] Set keywords to reset the previous conversation. 
-- [x] Regenerate to get another answer. 
-- [x] Rollback conversation. 
+- [x] Support multithreaded `Stable Diffusion` AI drawing function (English Only)
+- [x] **Never get banned by using official WeChat execution**
+- [x] Set the keywords to wake up the WeChat robot in private
+- [x] Set the keywords to wake up the WeChat robot in the group
+- [x] Support replying *at-message* when mentioning your bot in the group **(have bugs)**
+- [x] Get help doc inline
+- [x] Set keywords to reset the previous conversation
+- [x] Regenerate to get another answer
+- [x] Rollback conversation
+- [ ] Support multiple account and multithreaded conversation
 - [ ] Other
 
 
@@ -38,7 +40,7 @@ Using ChatGPT-weBot based on ChatGPT(Non-API key call) and official WeChat hook 
 
 ```
 {
-  // Setting host running locally (only local)
+  // Setting host running locally (local only)
   "server_host": "127.0.0.1:5555",
 
   // Whether to enable ChatGPT auto-reply function
@@ -55,6 +57,15 @@ Using ChatGPT-weBot based on ChatGPT(Non-API key call) and official WeChat hook 
   "prvReplyMode": true,
   // Origin question quote on head of answer in private chat
   "prvCitationMode": false,
+  
+  // Whether to enable Stable Diffusion AI drawing function (English Only)
+  "stableDiffRly": true,
+  // Setting keyword to wake up AI drawing function in group chat
+  "groupImgKey": "-i",
+  // Setting keyword to wake up AI drawing function in private chat
+  "privateImgKey": "-i",
+  // Whether to enable image caching (it will be cached in .cache folder)
+  "isCached": true,
 
   // View available command help
   "helpKey": "-h",
@@ -135,6 +146,8 @@ Using ChatGPT-weBot based on ChatGPT(Non-API key call) and official WeChat hook 
 
 1. How to get all response? You can say "continue" in your language.
 2. Have problems? Feel free to create an issue.
+3. How to trace problems in multithreaded program? Print or using debug with information of thread-stack.
+4. Have any preview images related to functionality? Yes, go to -> [Preview](./Preview.md)
 
 
 
@@ -152,7 +165,9 @@ Using ChatGPT-weBot based on ChatGPT(Non-API key call) and official WeChat hook 
 
 ## Log
 
-- 2023.2.27 Add zip version of WeChat and `dual-start.bat`,  fix the bug that prevents other operations when the response keyword is empty.
+- 2023.3.4 Add Stable Diffusion into function (English Only)
+- 2023.3.3 Add multithread and rewrite the whole program structure
+- 2023.2.27 Add zip version of WeChat and `dual-start.bat`,  fix the bug that prevents other operations when the response keyword is empty
 - 2023.2.25 Add the option in `config.json` to quote the original question before answering 
 - 2023.2.25 Complete all API function on features and Debugs for errors
 - 2023.2.23 Accomplish some API listed on features

@@ -4,7 +4,7 @@
 
 [TOC]
 
-使用基于 ChatGPT (非API-KEY调用) 和 官方微信 hook 接口 的 ChatGPT-weBot 机器人。中文文档 | [English](./Readme.md)
+使用基于 ChatGPT (非API-KEY调用) 、Stable Diffusion AI画图 与 官方微信hook接口 的 ChatGPT-weBot机器人。中文文档 | [English](./Readme.md)
 
 <div align="center"> <img src="assets/DALL·E  - A robot is working hard to transform, modify, and revolutionize the WeChat software.png" width="50%"> </div>
 
@@ -20,14 +20,16 @@
 
 - [x] 支持对话
 - [x] 支持上下文感知问答
+- [x] 支持多线程 `Stable Diffusion` AI 画图功能（仅英语）
 - [x] **使用官方微信软件执行，信息来源方面永不封禁**
 - [x] 设置关键字在私聊中唤醒微信机器人
-- [x] 设置关键字在群中唤醒微信机器人
+- [x] 设置关键字在群聊中唤醒微信机器人
 - [x] 在群聊中提到您的机器人时，支持回复@的消息**（有Bug）**
-- [x] 在线获取帮助文档
+- [x] 支持获取帮助文档
 - [x] 设置关键字以重置之前的对话
 - [x] 重新生成答案
 - [x] 回滚对话
+- [ ] 支持多账户多线程对话回答
 - [ ] 其他
 
 
@@ -55,6 +57,15 @@
   "prvReplyMode": true,
   // 在群聊回答前添加源问题格式
   "prvCitationMode": false,
+  
+  // 是否开启 Stable Diffusion 图片回复（仅英语）
+  "stableDiffRly": true,
+  // 在群聊中设置唤醒 AI画图功能关键词
+  "groupImgKey": "-i",
+  // 在私聊中设置唤醒 AI画图功能关键词
+  "privateImgKey": "-i",
+  // 是否开启图片缓存（开启后会在 .cache 文件夹中缓存）
+  "isCached": true,
 
   // 查看可用命令帮助
   "helpKey": "-h",
@@ -131,6 +142,8 @@
 
 1. 如何获取所有的回复？您可以用您的语言说 “请继续”。
 2. 遇到问题了吗？随时来创建一个 issue 进行发布。
+3. 如何才能在多线程的程序中定位问题？使用 print 或使用debug工具查看线程栈信息
+4. 是否有一些功能预览的图片？有的，在这里 -> [功能预览](./Preview.md)
 
 
 
@@ -148,6 +161,8 @@
 
 ## 日志
 
+- 2023年3月4日 添加了 Stable Diffusion AI 作图功能（仅英语）
+- 2023年3月3日 添加多线程，并重写了程序的结构
 - 2023年2月27日 添加压缩包版微信与双开脚本，并修复响应关键字为空时无法进行其他操作的 bug
 - 2023年2月25日 `config.json` 中添加回答前引用原问题选项
 - 2023年2月25日 完成所有功能的 API 函数并修复了其它的错误
