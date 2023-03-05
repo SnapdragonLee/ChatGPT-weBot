@@ -88,6 +88,8 @@ def handle_recv_txt_msg(j):
         room_id = j["wxid"]
         chatbot = global_dict.get((wx_id, room_id))
 
+    is_citation = (grpCitationMode and is_room) or (prvCitationMode and not is_room)
+
     if autoReply and ((not is_room and prvReplyMode) or (is_room and grpReplyMode)):
         if content.startswith(helpKey):
             reply = str(
@@ -98,18 +100,15 @@ def handle_recv_txt_msg(j):
                 ((groupChatKey + " 提问群聊天机器人\n") if is_room else (privateChatKey + " 提问聊天机器人\n")) + resetChatKey + \
                 " 重置上下文\n" + regenerateKey + " 重新生成答案\n" + rollbackKey + " +数字n 回滚到倒数第n个问题"
 
-            nm = NormalTask(ws, content, reply, wx_id, room_id, is_room,
-                            False)
+            nm = NormalTask(ws, content, reply, wx_id, room_id, is_room, False)
             nrm_que.put(nm)
 
         elif content.startswith(resetChatKey):
-            ct = ChatTask(ws, content, chatbot, wx_id, room_id, is_room,
-                          (grpCitationMode and is_room) or (prvCitationMode and not is_room), "rs")
+            ct = ChatTask(ws, content, chatbot, wx_id, room_id, is_room, is_citation, "rs")
             chat_que.put(ct)
 
         elif content.startswith(regenerateKey):
-            ct = ChatTask(ws, content, chatbot, wx_id, room_id, is_room,
-                          (grpCitationMode and is_room) or (prvCitationMode and not is_room), "rg")
+            ct = ChatTask(ws, content, chatbot, wx_id, room_id, is_room, is_citation, "rg")
             chat_que.put(ct)
 
         elif content.startswith(rollbackKey):
@@ -128,8 +127,7 @@ def handle_recv_txt_msg(j):
                 else:
                     reply = "请在回滚指令后输入有效数字"
 
-            nm = NormalTask(ws, content, reply, wx_id, room_id, is_room,
-                            (grpCitationMode and is_room) or (prvCitationMode and not is_room))
+            nm = NormalTask(ws, content, reply, wx_id, room_id, is_room, is_citation)
             nrm_que.put(nm)
 
         elif stableDiffRly and (
@@ -140,7 +138,7 @@ def handle_recv_txt_msg(j):
 
             img_que.put(ig)
 
-        elif content.startswith(privateChatKey) or content.startswith(groupChatKey):
+        elif (content.startswith(privateChatKey) and not is_room) or (content.startswith(groupChatKey) and is_room):
             content = re.sub("^" + (privateChatKey if content.startswith(privateChatKey) else groupChatKey), "",
                              content, 1)
 
@@ -155,8 +153,7 @@ def handle_recv_txt_msg(j):
                 else:
                     global_dict[(wx_id, "")] = chatbot
 
-            ct = ChatTask(ws, content, chatbot, wx_id, room_id, is_room,
-                          (grpCitationMode and is_room) or (prvCitationMode and not is_room), "c")
+            ct = ChatTask(ws, content, chatbot, wx_id, room_id, is_room, is_citation, "c")
 
             chat_que.put(ct)
 
