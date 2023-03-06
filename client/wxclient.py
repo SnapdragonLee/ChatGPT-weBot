@@ -132,14 +132,14 @@ def handle_recv_txt_msg(j):
 
         elif stableDiffRly and (
                 (content.startswith(privateImgKey) and not is_room) or (content.startswith(groupImgKey) and is_room)):
-            content = re.sub("^" + (privateImgKey if content.startswith(privateImgKey) else groupImgKey),
+            content = re.sub("^" + (groupImgKey if is_room else privateImgKey),
                              "", content, 1)
             ig = ImgTask(ws, content, wx_id, room_id, is_room, "2.1")
 
             img_que.put(ig)
 
         elif (content.startswith(privateChatKey) and not is_room) or (content.startswith(groupChatKey) and is_room):
-            content = re.sub("^" + (privateChatKey if content.startswith(privateChatKey) else groupChatKey), "",
+            content = re.sub("^" + (groupChatKey if is_room else privateChatKey), "",
                              content, 1)
 
             if chatbot is None:

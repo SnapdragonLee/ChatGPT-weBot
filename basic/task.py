@@ -45,7 +45,6 @@ class ChatTask:
                 ):
                     self.reply += data["message"][len(self.reply):]
 
-
         elif self.type == "c":
             print("ask:" + self.prompt)
             for data in self.bot.ask(
