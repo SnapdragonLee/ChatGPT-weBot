@@ -10,7 +10,8 @@ from os.path import exists
 from OpenAIAuth import Authenticator, Error as AuthError
 
 # BASE_URL = "https://chatgpt.duti.tech/"
-BASE_URL = "https://apps.openai.com/"
+# BASE_URL = "https://apps.openai.com/"
+BASE_URL = "https://bypass.duti.tech/"
 
 
 class Error(Exception):
@@ -179,10 +180,9 @@ class Chatbot:
             url=BASE_URL + "api/conversation",
             data=json.dumps(data),
             timeout=timeout,
-            stream=True,
         )
         self.__check_response(response)
-        for line in response.iter_lines():
+        for line in response.iter_lines(chunk_size=4096):
             line = str(line)[2:-1]
             if line == "Internal Server Error":
                 raise Exception("Error: " + str(line))

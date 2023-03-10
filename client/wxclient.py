@@ -254,7 +254,7 @@ def on_close(ws):
 
 server = "ws://" + server_host
 
-websocket.enableTrace(True)
+# websocket.enableTrace(True)
 
 ws = websocket.WebSocketApp(server,
                             on_open=on_open,
