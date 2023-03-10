@@ -9,8 +9,7 @@ import requests
 from os.path import exists
 from OpenAIAuth import Authenticator, Error as AuthError
 
-# BASE_URL = "https://chatgpt.duti.tech/"
-BASE_URL = "https://apps.openai.com/"
+BASE_URL = "https://bypass.duti.tech/api/"
 
 
 class Error(Exception):
@@ -176,7 +175,7 @@ class Chatbot:
         self.prompt_prev_queue.append(self.prompt)
 
         response = self.session.post(
-            url=BASE_URL + "api/conversation",
+            url=f"{BASE_URL}conversation",
             data=json.dumps(data),
             timeout=timeout,
             stream=True,
@@ -251,7 +250,7 @@ class Chatbot:
         :param offset: Integer
         :param limit: Integer
         """
-        url = BASE_URL + f"api/conversations?offset={offset}&limit={limit}"
+        url = f"{BASE_URL}conversations?offset={offset}&limit={limit}"
         response = self.session.get(url)
         self.__check_response(response)
         data = json.loads(response.text)
@@ -263,7 +262,7 @@ class Chatbot:
         :param convo_id: UUID of conversation
         :param encoding: String
         """
-        url = BASE_URL + f"api/conversation/{convo_id}"
+        url = f"{BASE_URL}conversation/{convo_id}"
         response = self.session.get(url)
         self.__check_response(response)
         if encoding is not None:
@@ -275,7 +274,7 @@ class Chatbot:
         """
         Generate title for conversation
         """
-        url = BASE_URL + f"api/conversation/gen_title/{convo_id}"
+        url = f"{BASE_URL}conversation/gen_title/{convo_id}"
         response = self.session.post(
             url,
             data=json.dumps(
@@ -290,7 +289,7 @@ class Chatbot:
         :param convo_id: UUID of conversation
         :param title: String
         """
-        url = BASE_URL + f"api/conversation/{convo_id}"
+        url = f"{BASE_URL}conversation/{convo_id}"
         response = self.session.patch(url, data=json.dumps({"title": title}))
         self.__check_response(response)
 
@@ -299,7 +298,7 @@ class Chatbot:
         Delete conversation
         :param convo_id: UUID of conversation
         """
-        url = BASE_URL + f"api/conversation/{convo_id}"
+        url = f"{BASE_URL}conversation/{convo_id}"
         response = self.session.patch(url, data='{"is_visible": false}')
         self.__check_response(response)
 
@@ -307,7 +306,7 @@ class Chatbot:
         """
         Delete all conversations
         """
-        url = BASE_URL + "api/conversations"
+        url = f"{BASE_URL}conversations"
         response = self.session.patch(url, data='{"is_visible": false}')
         self.__check_response(response)
 
