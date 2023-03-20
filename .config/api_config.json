@@ -1,0 +1,13 @@
+{
+  "api_key": "",
+  "engine": "gpt-3.5-turbo",
+  "max_tokens": 3600,
+  "temperature": 0.7,
+  "top_p": 1.0,
+  "presence_penalty": 0.0,
+  "frequency_penalty": 0.0,
+  "reply_count": 1,
+  "system_character": "You are ChatGPT, a large language model trained by OpenAI. Respond conversationally",
+
+  "proxy": ""
+}

@@ -4,18 +4,22 @@ import base64
 import os.path
 import string
 import random
+import time
+
 import websocket
 
-from .send import send_txt_msg, send_pic_msg
 from shared.shared import *
+from apibase.ChatGPTAPI import ChatbotError
+from .send import send_txt_msg, send_pic_msg
 
 global_dict = dict()
 
 
 class ChatTask:
-    def __init__(self, ws, prompt, chatbot, wx_id, room_id, is_room, is_citation, type):
+    def __init__(self, ws, prompt, access, chatbot, wx_id, room_id, is_room, is_citation, type):
         self.ws = ws
         self.prompt = prompt
+        self.access = access
         self.bot = chatbot
         self.wx_id = wx_id
         self.room_id = room_id
@@ -26,36 +30,52 @@ class ChatTask:
 
     def play(self):
         if self.type == "rs":
-            if self.bot is not None:
-                self.bot.clear_conversations()
-                del (global_dict[(self.wx_id, self.room_id)])
+            if self.bot is not None and len(self.bot.conversation) > 1:
+                self.bot.reset()
                 self.reply = "重置完成"
             else:
                 self.reply = "您还没有开始第一次对话"
                 time.sleep(0.5)
 
         elif self.type == "rg":
-            if self.bot is None or self.bot.prompt is None:
+            if self.bot is None or self.bot.question_num == 0:
                 self.reply = "您还没有问过问题"
                 time.sleep(0.5)
             else:
-                print("ask:" + self.bot.prompt)
-                for data in self.bot.ask(
-                        prompt=None,
-                ):
-                    self.reply += data["message"][len(self.reply):]
+                print("ask:" + self.bot.prev_question[-1][-1])
+                try:
+                    self.reply += self.bot.ask(prompt=None)
+                except ChatbotError as CE:
+                    self.reply += CE.__str__()
+
+        elif self.type == "z":
+            if self.bot is None or self.bot.question_num < 1:
+                self.reply = "您还没有问过问题"
+                time.sleep(0.5)
+            else:
+                print("ask: 用150字内总结全部对话")
+                self.reply += self.bot.conclusion()
+
+        elif self.type == "p":
+            try:
+                self.bot.set_system_character(role=self.prompt)
+                self.reply += f"设定角色 {self.prompt} 成功"
+            except ChatbotError as CE:
+                self.reply += CE.__str__()
+                time.sleep(0.5)
 
         elif self.type == "c":
             print("ask:" + self.prompt)
-            for data in self.bot.ask(
-                    prompt=self.prompt,
-            ):
-                self.reply += data["message"][len(self.reply):]
+            try:
+                self.reply += self.bot.ask(prompt=self.prompt, access_internet=self.access,
+                                           access_result=internetResult)
+            except ChatbotError as CE:
+                self.reply += CE.__str__()
 
         print("reply: " + self.reply)
         if self.is_citation:
-            self.reply = (
-                             self.bot.prompt if self.type == "rg" else self.prompt) + "\n- - - - - - - - - -\n" + self.reply.strip()
+            self.reply = (self.bot.prev_question[-1] if self.type == "rg" else (
+                "用150字内总结全部对话" if self.type == "z" else self.prompt)) + "\n- - - - - - - - - -\n" + self.reply.strip()
         self.ws.send(send_txt_msg(text_string=self.reply.strip(), wx_id=self.room_id if self.is_room else self.wx_id))
 
 
@@ -104,7 +124,7 @@ class ImgTask:
         msg = json.loads(message)
         if msg["msg"] == "send_data":
             process = {
-                "data": [self.prompt, "", 9],
+                "data": [self.prompt[0], "" if len(self.prompt) == 1 else self.prompt[1], 9],
                 "fn_index": 3
             }
             img_ws.send(json.dumps(process))
@@ -122,7 +142,8 @@ class ImgTask:
                     file_object.write(source_str)
                 file_object.close()
 
-                self.ws.send(send_pic_msg(wx_id=self.room_id if self.is_room else self.wx_id, content=os.path.join(os.path.abspath(cache_dir), filename)))
+                self.ws.send(send_pic_msg(wx_id=self.room_id if self.is_room else self.wx_id,
+                                          content=os.path.join(os.path.abspath(cache_dir), filename)))
                 time.sleep(1.0)
                 if isCached:
                     print("Image cached! Name: " + cache_dir + filename)

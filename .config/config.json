@@ -1,7 +1,8 @@
 {
-  "server_host": "127.0.0.1:5555",
-
   "autoReply": true,
+
+  "internetKey": "-o",
+  "internetResult": 3,
 
   "groupChatKey": "-c",
   "grpReplyMode": true,
@@ -9,10 +10,13 @@
   "privateChatKey": "-c",
   "prvReplyMode": true,
   "prvCitationMode": false,
+  "characterKey": "-p",
+  "conclusionKey": "-z",
 
   "stableDiffRly": true,
   "groupImgKey": "-i",
   "privateImgKey": "-i",
+  "negativePromptKey": "-n",
   "isCached": true,
 
   "helpKey": "-h",

@@ -2,8 +2,15 @@
 Standard ChatGPT
 """
 
+from __future__ import annotations
+
+import base64
 import json
+import time
 import uuid
+
+import os
+
 import requests
 
 from os.path import exists
@@ -14,24 +21,48 @@ from OpenAIAuth import Authenticator, Error as AuthError
 BASE_URL = "https://bypass.duti.tech/"
 
 
+class ErrorType:
+    # define consts for the error codes
+    USER_ERROR = -1
+    UNKNOWN_ERROR = 0
+    SERVER_ERROR = 1
+    RATE_LIMIT_ERROR = 2
+    INVALID_REQUEST_ERROR = 3
+    EXPIRED_ACCESS_TOKEN_ERROR = 4
+    INVALID_ACCESS_TOKEN_ERROR = 5
+    PROHIBITED_CONCURRENT_QUERY_ERROR = 6
+    AUTHENTICATION_ERROR = 7
+    CLOUDFLARE_ERROR = 8
+
+
 class Error(Exception):
-    """Base class for exceptions in this module.
-    # Error codes:
-    # -1: User error
-    # 0: Unknown error
-    # 1: Server error
-    # 2: Rate limit error
-    # 3: Invalid request error
+    """
+    Base class for exceptions in this module.
+    Error codes:
+    -1: User error
+    0: Unknown error
+    1: Server error
+    2: Rate limit error
+    3: Invalid request error
+    4: Expired access token error
+    5: Invalid access token error
+    6: Prohibited concurrent query error
     """
 
     source: str
     message: str
     code: int
 
-    def __init__(self, source: str = None, message: str = None, code: int = 0):
+    def __init__(self, source: str, message: str, code: int = 0) -> None:
         self.source = source
         self.message = message
         self.code = code
+
+    def __str__(self) -> str:
+        return f"{self.source}: {self.message} (code: {self.code})"
+
+    def __repr__(self) -> str:
+        return f"{self.source}: {self.message} (code: {self.code})"
 
 
 class Chatbot:
@@ -46,6 +77,25 @@ class Chatbot:
             parent_id=None,
             session_client=None,
     ) -> None:
+
+        """Initialize a chatbot
+        Args:
+            config (dict[str, str]): Login and proxy info. Example:
+                {
+                    "email": "OpenAI account email",
+                    "password": "OpenAI account password",
+                    "session_token": "<session_token>"
+                    "access_token": "<access_token>"
+                    "proxy": "<proxy_url_string>",
+                    "paid": True/False, # whether this is a plus account
+                }
+                More details on these are available at https://github.com/acheong08/ChatGPT#configuration
+            conversation_id (str | None, optional): Id of the conversation to continue on. Defaults to None.
+            parent_id (str | None, optional): Id of the previous response message to continue on. Defaults to None.
+            session_client (_type_, optional): _description_. Defaults to None.
+        Raises:
+            Exception: _description_
+        """
         self.prompt = None
         self.config = config
         self.session = session_client() if session_client else requests.Session()
@@ -68,22 +118,34 @@ class Chatbot:
 
         self.__check_credentials()
 
-    def __check_credentials(self):
-        if "email" in self.config and "password" in self.config:
-            pass
-        elif "access_token" in self.config:
-            self.__refresh_headers(self.config["access_token"])
+    def __check_credentials(self) -> None:
+        """Check login info and perform login
+        Any one of the following is sufficient for login. Multiple login info can be provided at the same time, and they
+        will be used in the order listed below.
+            - access_token
+            - session_token
+            - email + password
+        Raises:
+            Exception: _description_
+            AuthError: _description_
+        """
+        if "access_token" in self.config:
+            self.__set_access_token(self.config["access_token"])
         elif "session_token" in self.config:
             pass
-        else:
-            raise Exception("No login details provided!")
+        elif "email" not in self.config or "password" not in self.config:
+            raise Exception("Insufficient login details provided!")
         if "access_token" not in self.config:
             try:
                 self.login()
             except AuthError as error:
                 raise error
 
-    def __refresh_headers(self, access_token):
+    def __set_access_token(self, access_token: str) -> None:
+        """Set access token in request header and self.config, then cache it to file.
+        Args:
+            access_token (str): access_token
+        """
         self.session.headers.clear()
         self.session.headers.update(
             {
@@ -96,12 +158,102 @@ class Chatbot:
                 "Referer": "https://chat.openai.com/chat",
             },
         )
+        self.session.cookies.update(
+            {
+                "library": "revChatGPT",
+            },
+        )
+
+        self.config["access_token"] = access_token
+
+        email = self.config.get("email", None)
+        if email is not None:
+            self.__cache_access_token(email, access_token)
+
+    def __get_cached_access_token(self, email: str | None) -> str | None:
+        """Read access token from cache
+        Args:
+            email (str | None): email of the account to get access token
+        Raises:
+            Error: _description_
+            Error: _description_
+            Error: _description_
+        Returns:
+            str | None: access token string or None if not found
+        """
+        email = email or "default"
+        cache = self.__read_cache()
+        access_token = cache.get("access_tokens", {}).get(email, None)
+
+        # Parse access_token as JWT
+        if access_token is not None:
+            try:
+                # Split access_token into 3 parts
+                s_access_token = access_token.split(".")
+                # Add padding to the middle part
+                s_access_token[1] += "=" * ((4 - len(s_access_token[1]) % 4) % 4)
+                d_access_token = base64.b64decode(s_access_token[1])
+                d_access_token = json.loads(d_access_token)
+            except base64.binascii.Error:
+                raise Error(
+                    source="__get_cached_access_token",
+                    message="Invalid access token",
+                    code=ErrorType.INVALID_ACCESS_TOKEN_ERROR,
+                ) from None
+            except json.JSONDecodeError:
+                raise Error(
+                    source="__get_cached_access_token",
+                    message="Invalid access token",
+                    code=ErrorType.INVALID_ACCESS_TOKEN_ERROR,
+                ) from None
+
+            exp = d_access_token.get("exp", None)
+            if exp is not None and exp < time.time():
+                raise Error(
+                    source="__get_cached_access_token",
+                    message="Access token expired",
+                    code=ErrorType.EXPIRED_ACCESS_TOKEN_ERROR,
+                )
+
+        return access_token
+
+    def __cache_access_token(self, email: str, access_token: str) -> None:
+        """Write an access token to cache
+        Args:
+            email (str): account email
+            access_token (str): account access token
+        """
+        email = email or "default"
+        cache = self.__read_cache()
+        if "access_tokens" not in cache:
+            cache["access_tokens"] = {}
+        cache["access_tokens"][email] = access_token
+        self.__write_cache(cache)
+
+    def __write_cache(self, info: dict) -> None:
+        """Write cache info to file
+        Args:
+            info (dict): cache info, current format
+            {
+                "access_tokens":{"someone@example.com": 'this account's access token', }
+            }
+        """
+        dirname = os.path.dirname(self.cache_path) or "."
+        os.makedirs(dirname, exist_ok=True)
+        json.dump(info, open(self.cache_path, "w", encoding="utf-8"), indent=4)
+
+    def __read_cache(self):
+        try:
+            cached = json.load(open(self.cache_path, encoding="utf-8"))
+        except (FileNotFoundError, json.decoder.JSONDecodeError):
+            cached = {}
+        return cached
 
     def login(self):
         if (
                 "email" not in self.config or "password" not in self.config
         ) and "session_token" not in self.config:
-            raise Exception("No login details provided!")
+            raise Exception("Insufficient login details provided!")
         auth = Authenticator(
             email_address=self.config.get("email"),
             password=self.config.get("password"),
@@ -119,37 +271,45 @@ class Chatbot:
             self.config["session_token"] = auth.session_token
             auth.get_access_token()
 
-        self.__refresh_headers(auth.access_token)
+        self.__set_access_token(auth.access_token)
 
     def ask(
             self,
-            prompt,
-            conversation_id=None,
-            parent_id=None,
-            timeout=360,
+            prompt: str,
+            conversation_id: str | None = None,
+            parent_id: str | None = None,
+            timeout: float = 360,
     ):
-        """
-        Ask a question to the chatbot
-        :param prompt: String
-        :param conversation_id: UUID
-        :param parent_id: UUID
-        :param timeout: time to close connection
+        """Ask a question to the chatbot
+        Args:
+            prompt (str): The question
+            conversation_id (str | None, optional): UUID for the conversation to continue on. Defaults to None.
+            parent_id (str | None, optional): UUID for the message to continue on. Defaults to None.
+            timeout (float, optional): Timeout for getting the full response, unit is second. Defaults to 360.
+        Raises:
+            Error: _description_
+            Exception: _description_
+            Error: _description_
+            Error: _description_
+            Error: _description_
+        Yields:
+            _type_: _description_
         """
         if prompt is not None:
             self.prompt = prompt
         if parent_id is not None and conversation_id is None:
-            error = Error()
-            error.source = "User"
-            error.message = "conversation_id must be set once parent_id is set"
-            error.code = -1
-            raise error
+            raise Error(
+                source="User",
+                message="conversation_id must be set once parent_id is set",
+                code=ErrorType.USER_ERROR,
+            )
 
         if conversation_id is not None and conversation_id != self.conversation_id:
             self.parent_id = None
 
         conversation_id = conversation_id or self.conversation_id
         parent_id = parent_id or self.parent_id
-        if conversation_id is None and parent_id is None:  # new conversation
+        if conversation_id is None and parent_id is None:
             parent_id = str(uuid.uuid4())
 
         if conversation_id is not None and parent_id is None:
@@ -162,14 +322,14 @@ class Chatbot:
                 {
                     "id": str(uuid.uuid4()),
                     "role": "user",
-                    "content": {"content_type": "text", "parts": [self.prompt]},
+                    "content": {"content_type": "text", "parts": [prompt]},
                 },
             ],
             "conversation_id": conversation_id,
             "parent_message_id": parent_id,
-            "model": "text-davinci-002-render-sha"
-            if not self.config.get("paid")
-            else "text-davinci-002-render-paid",
+            "model": "text-davinci-002-render-paid"
+            if self.config.get("paid")
+            else "text-davinci-002-render-sha",
         }
 
         self.conversation_id_prev_queue.append(data["conversation_id"], )
@@ -183,9 +343,14 @@ class Chatbot:
         )
         self.__check_response(response)
         for line in response.iter_lines(chunk_size=4096):
+            # remove b' and ' at the beginning and end and ignore case
             line = str(line)[2:-1]
-            if line == "Internal Server Error":
-                raise Exception("Error: " + str(line))
+            if line.lower() == "internal server error":
+                raise Error(
+                    source="ask",
+                    message="Internal Server Error",
+                    code=ErrorType.SERVER_ERROR,
+                )
             if line == "" or line is None:
                 continue
             if "data: " in line:
@@ -201,23 +366,45 @@ class Chatbot:
                 line = json.loads(line)
             except json.decoder.JSONDecodeError:
                 continue
-            if not self.__check_fields(line):
-                if (
-                        line.get("details")
-                        == "Too many requests in 1 hour. Try again later."
-                ):
-                    raise Error(source="ask", message=line.get("details"), code=2)
-                raise Error(source="ask", message="Field missing", code=1)
+            if not self.__check_fields(line) or response.status_code != 200:
+                if response.status_code == 401:
+                    raise Error(
+                        source="ask",
+                        message="Permission denied",
+                        code=ErrorType.AUTHENTICATION_ERROR,
+                    )
+                if response.status_code == 403:
+                    raise Error(
+                        source="ask",
+                        message="Cloudflare triggered a 403 error",
+                        code=ErrorType.CLOUDFLARE_ERROR,
+                    )
+                if response.status_code == 429:
+                    raise Error(
+                        source="ask",
+                        message="Rate limit exceeded",
+                        code=ErrorType.RATE_LIMIT_ERROR,
+                    )
+                raise Error(
+                    source="ask",
+                    message=line,
+                    code=ErrorType.SERVER_ERROR,
+                )
 
             if line["message"]["author"]["role"] != "assistant":
                 continue
             message = line["message"]["content"]["parts"][0]
             conversation_id = line["conversation_id"]
             parent_id = line["message"]["id"]
+            try:
+                model = line["message"]["metadata"]["model_slug"]
+            except KeyError:
+                model = None
             yield {
                 "message": message,
                 "conversation_id": conversation_id,
                 "parent_id": parent_id,
+                "model": model,
             }
         self.conversation_mapping[conversation_id] = parent_id
         if parent_id is not None:
@@ -225,27 +412,34 @@ class Chatbot:
         if conversation_id is not None:
             self.conversation_id = conversation_id
 
-    @staticmethod
-    def __check_fields(data: dict) -> bool:
+    def __check_fields(self, data: dict) -> bool:
         try:
             data["message"]["content"]
-        except TypeError:
-            return False
-        except KeyError:
+        except (TypeError, KeyError):
             return False
         return True
 
-    @staticmethod
-    def __check_response(response):
+    def __check_response(self, response: requests.Response) -> None:
+        """Make sure response is success
+        Args:
+            response (_type_): _description_
+        Raises:
+            Error: _description_
+        """
         if response.status_code != 200:
             print(response.text)
-            error = Error()
-            error.source = "OpenAI"
-            error.code = response.status_code
-            error.message = response.text
-            raise error
+            raise Error(
+                source="OpenAI",
+                message=response.text,
+                code=response.status_code,
+            )
 
-    def get_conversations(self, offset=0, limit=20):
+    def get_conversations(
+            self,
+            offset: int = 0,
+            limit: int = 20,
+            encoding: str | None = None,
+    ):
         """
         Get conversations
         :param offset: Integer
@@ -254,10 +448,12 @@ class Chatbot:
         url = BASE_URL + f"api/conversations?offset={offset}&limit={limit}"
         response = self.session.get(url)
         self.__check_response(response)
+        if encoding is not None:
+            response.encoding = encoding
         data = json.loads(response.text)
         return data["items"]
 
-    def get_msg_history(self, convo_id, encoding=None):
+    def get_msg_history(self, convo_id: str, encoding: str | None = None):
         """
         Get message history
         :param convo_id: UUID of conversation
@@ -268,10 +464,9 @@ class Chatbot:
         self.__check_response(response)
         if encoding is not None:
             response.encoding = encoding
-        data = json.loads(response.text)
-        return data
+        return json.loads(response.text)
 
-    def gen_title(self, convo_id, message_id):
+    def gen_title(self, convo_id: str, message_id: str) -> None:
         """
         Generate title for conversation
         """
@@ -284,7 +479,7 @@ class Chatbot:
         )
         self.__check_response(response)
 
-    def change_title(self, convo_id, title):
+    def change_title(self, convo_id: str, title: str) -> None:
         """
         Change title of conversation
         :param convo_id: UUID of conversation
@@ -294,7 +489,7 @@ class Chatbot:
         response = self.session.patch(url, data=json.dumps({"title": title}))
         self.__check_response(response)
 
-    def delete_conversation(self, convo_id):
+    def delete_conversation(self, convo_id: str) -> None:
         """
         Delete conversation
         :param convo_id: UUID of conversation
@@ -303,7 +498,7 @@ class Chatbot:
         response = self.session.patch(url, data='{"is_visible": false}')
         self.__check_response(response)
 
-    def clear_conversations(self):
+    def clear_conversations(self) -> None:
         """
         Delete all conversations
         """
@@ -325,10 +520,10 @@ class Chatbot:
         self.conversation_id = None
         self.parent_id = str(uuid.uuid4())
 
-    def rollback_conversation(self, num=1) -> None:
+    def rollback_conversation(self, num: int = 1) -> None:
         """
         Rollback the conversation.
-        :param num: The number of messages to rollback
+        :param num: Integer. The number of messages to rollback
         :return: None
         """
         for _ in range(num):
