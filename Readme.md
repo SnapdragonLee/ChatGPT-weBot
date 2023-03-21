@@ -120,9 +120,18 @@ Using ChatGPT-weBot based on ChatGPT(API key call), Stable Diffusion AI drawing 
 ## Q&A
 
 1. How to get all response? You can say "continue" in your language.
+
 2. Have problems? Feel free to create an issue.
+
 3. How to trace problems in multithreaded program? Print or using debug with information of thread-stack.
+
 4. Have any preview images related to functionality? Yes, go to -> [Preview](./doc/Preview.md)
+
+5. Wanna buy me coffee? Thank you, please don't spend too much money.
+
+   ![image-20230321150123666](assets/image-20230321150123666.png)
+
+   
 
 
 
