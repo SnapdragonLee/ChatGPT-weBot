@@ -4,7 +4,9 @@
 
 [TOC]
 
-Using ChatGPT-weBot based on ChatGPT(Non-API key call), Stable Diffusion AI drawing and official WeChat hook interface. [中文文档](./Readme_ZH.md) | English
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/SnapdragonLee/ChatGPT-weBot)
+
+Using ChatGPT-weBot based on ChatGPT(API key call), Stable Diffusion AI drawing and official WeChat hook interface. [中文文档](./Readme_ZH.md) | English
 
 <div align="center"> <img src="assets/DALL·E  - A robot is working hard to transform, modify, and revolutionize the WeChat software.png" width="50%"> </div>
 
@@ -20,16 +22,21 @@ Using ChatGPT-weBot based on ChatGPT(Non-API key call), Stable Diffusion AI draw
 
 - [x] Support conversation
 - [x] Support context-aware question answering
-- [x] Support multithreaded `Stable Diffusion` AI drawing function (English Only)
+- [x] Support multithreaded `Stable Diffusion` AI drawing (English Only, Support (Negative) Prompt)
 - [x] **Never get banned by using official WeChat execution**
+- [x] Support API calls for `gpt-3.5-turbo` and newer models
+- [x] Support `WebChatGPT` function
+- [x] Support bot's character setting
 - [x] Set the keywords to wake up the WeChat robot in private
 - [x] Set the keywords to wake up the WeChat robot in the group
 - [x] Support replying *at-message* when mentioning your bot in the group **(have bugs)**
 - [x] Get help doc inline
-- [x] Set keywords to reset the previous conversation
-- [x] Regenerate to get another answer
+- [x] Regenerate conversation
 - [x] Rollback conversation
-- [ ] Support multiple account and multithreaded conversation
+- [x] Conclusion **(save `token` consumption)**
+- [x] Reset the whole conversation
+- [x] Support multithreaded conversation in one account
+- [x] No need to manually reboot service after error exists
 - [ ] Other
 
 
@@ -38,45 +45,7 @@ Using ChatGPT-weBot based on ChatGPT(Non-API key call), Stable Diffusion AI draw
 
 ## Default configs (Follow steps before you start server)
 
-```
-{
-  // Setting host running locally (local only)
-  "server_host": "127.0.0.1:5555",
-
-  // Whether to enable ChatGPT auto-reply function
-  "autoReply": true,
-  // Setting keyword to wake up bot in group chat
-  "groupChatKey": "-c",
-  // Using reply mode in group chat
-  "grpReplyMode": false,
-  // Origin question quote on head of answer in group chat
-  "grpCitationMode": true,
-  // Setting keyword to wake up bot in private chat
-  "privateChatKey": "-c",
-  // Using reply mode in private chat
-  "prvReplyMode": true,
-  // Origin question quote on head of answer in private chat
-  "prvCitationMode": false,
-  
-  // Whether to enable Stable Diffusion AI drawing function (English Only)
-  "stableDiffRly": true,
-  // Setting keyword to wake up AI drawing function in group chat
-  "groupImgKey": "-i",
-  // Setting keyword to wake up AI drawing function in private chat
-  "privateImgKey": "-i",
-  // Whether to enable image caching (it will be cached in .cache folder)
-  "isCached": true,
-
-  // View available command help
-  "helpKey": "-h",
-  // Setting keyword to reset context
-  "resetChatKey": "-rs",
-  // Setting keyword to regenerate previous answer
-  "regenerateKey": "-rg",
-  // Setting keyword to roll back to previous n questions
-  "rollbackKey": "-rb"
-}
-```
+---> Configurable options [detailed guide](./doc/Config.md)
 
 
 
@@ -114,9 +83,15 @@ Using ChatGPT-weBot based on ChatGPT(Non-API key call), Stable Diffusion AI draw
 
 5. The last step is fill json files listed in `.config/` . 
 
+   - In `api_config.json`, you need to fill in your own parameter settings for API calls. If you don’t know the specific parameters, you only need to fill in the "api_key" and optional "proxy" items.
+
+   - In `server_config.json`, you can customize the listening address and port. If you don’t know it exactly, no modification needed by default.
+
    - In `config.json` ,  you need to configure your custom options based on your preferences.
 
-   - In `rev_config.json` , you need to fill your ChatGPT login information by *choosing 1 method*: 
+   - In `sys_character.json`, you can customize the character the bot needs to play, and use the command to activate when chatting.
+
+   - **(Temporary deprecated)** In `rev_config.json` , you need to fill your ChatGPT login information by *choosing 1 method*: 
 
      - Email/Password **(Not supported for Google/Microsoft accounts)**
 
@@ -136,7 +111,7 @@ Using ChatGPT-weBot based on ChatGPT(Non-API key call), Stable Diffusion AI draw
 
    **Everything is ready, feel free to go online with your ChatGPT-weBot !** 
    
-   No limitation, No usage counting, and no payment needed.
+   No limitation, but since switching to OpenAI API, there are usage counts and payment requirements.
 
 
 
@@ -147,7 +122,7 @@ Using ChatGPT-weBot based on ChatGPT(Non-API key call), Stable Diffusion AI draw
 1. How to get all response? You can say "continue" in your language.
 2. Have problems? Feel free to create an issue.
 3. How to trace problems in multithreaded program? Print or using debug with information of thread-stack.
-4. Have any preview images related to functionality? Yes, go to -> [Preview](./Preview.md)
+4. Have any preview images related to functionality? Yes, go to -> [Preview](./doc/Preview.md)
 
 
 
@@ -165,6 +140,7 @@ Using ChatGPT-weBot based on ChatGPT(Non-API key call), Stable Diffusion AI draw
 
 ## Log
 
+- 2023.3.21 Add plenty of new features, fixed bugs, released v1.00 version
 - 2023.3.4 Add Stable Diffusion into function (English Only)
 - 2023.3.3 Add multithread and rewrite the whole program structure
 - 2023.2.27 Add zip version of WeChat and `dual-start.bat`,  fix the bug that prevents other operations when the response keyword is empty
