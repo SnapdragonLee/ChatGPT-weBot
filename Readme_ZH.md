@@ -52,6 +52,7 @@
 
 
 ## 启动步骤
+0. 运行环境：Windows 10+， python 3.10+
 
 1. 安装 `requirements.txt` 中列出的所有包，使用如下命令：
 
