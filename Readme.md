@@ -150,6 +150,7 @@ Using ChatGPT-weBot based on ChatGPT(API key call), Stable Diffusion AI drawing 
 
 ## Log
 
+- 2023.3.23 Fix bugs for Stable Diffusion and others, released v1.01 version
 - 2023.3.21 Add plenty of new features, fixed bugs, released v1.00 version
 - 2023.3.4 Add Stable Diffusion into function (English Only)
 - 2023.3.3 Add multithread and rewrite the whole program structure
