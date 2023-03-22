@@ -183,8 +183,7 @@ def handle_recv_pic_msg(j):
 
 
 def handle_recv_txt_cite(j):
-    content = j["content"]
-    print(j)
+    pass
 
 
 def handle_heartbeat(j):

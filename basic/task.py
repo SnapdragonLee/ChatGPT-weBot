@@ -4,7 +4,6 @@ import base64
 import os.path
 import string
 import random
-import time
 
 import websocket
 
@@ -106,7 +105,13 @@ class ImgTask:
         self.room_id = room_id
         self.is_room = is_room
         self.version = version
+
         self.img_ws = None
+        self.wssRq = {
+            "session_hash": "".join(random.sample(string.ascii_lowercase + string.digits, 11)),
+            "fn_index": 3
+        }
+        self.times = 0
 
         if version == "2.1":
             self.img_host = "wss://" + API_URL_v21
@@ -114,15 +119,22 @@ class ImgTask:
             self.img_host = "wss://" + API_URL_v15
 
     def on_open(self, img_ws):
-        wssRq = {
-            "session_hash": "".join(random.sample(string.ascii_lowercase + string.digits, 11)),
-            "fn_index": 3
-        }
-        img_ws.send(json.dumps(wssRq))
+        self.times += 1
+        img_ws.send(json.dumps(self.wssRq))
 
     def on_message(self, img_ws, message):
         msg = json.loads(message)
-        if msg["msg"] == "send_data":
+
+        if msg["msg"] == "queue_full":
+            if self.times < 5:
+                # raise
+                err = ChatbotError("ConnectionError", "Public API of Stable Diffusion V2.1 is busy, try it later", 1)
+                send_txt_msg(text_string=err.__str__(), wx_id=self.room_id if self.is_room else self.wx_id)
+            else:
+                self.times += 1
+                img_ws.send(json.dumps(self.wssRq))
+
+        elif msg["msg"] == "send_data":
             process = {
                 "data": [self.prompt[0], "" if len(self.prompt) == 1 else self.prompt[1], 9],
                 "fn_index": 3

@@ -9,6 +9,7 @@ class ChatbotError(Exception):
     Error codes:
     -1: User error
     0: Unknown error
+    1: API busy error
     """
 
     error: str
@@ -45,6 +46,7 @@ class Chatbot:
         self.frequency_penalty = config["frequency_penalty"]
         self.reply_count = config["reply_count"]
         self.system_character = config["system_character"]
+        self.default = self.system_character
 
         self.proxy = config["proxy"]
 
@@ -228,7 +230,7 @@ class Chatbot:
         Reset the conversation.
         :return: None
         """
-        self.conversation = [{"role": "system", "content": self.system_character}]
+        self.conversation = [{"role": "system", "content": self.default}]
         self.prev_question.clear()
         self.question_num = 0
 
