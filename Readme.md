@@ -52,7 +52,7 @@ Using ChatGPT-weBot based on ChatGPT(API key call), Stable Diffusion AI drawing 
 
 
 ## Step to Start
-0. Environment: Windows 10+， python 3.10+
+0. Environment: Windows 7+， python 3.7+
 
 1. Install all packages listed in `requirements.txt` , use the command like:
 
