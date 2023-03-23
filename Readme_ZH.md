@@ -148,6 +148,7 @@
 
 ## 日志
 
+- 2023年3月24日，异常处理更新以及来自 [rogue-shadowdancer](https://github.com/rogue-shadowdancer) 和 [wbbeyourself](https://github.com/wbbeyourself) 的 pull request
 - 2023年3月23日，修复 stable diffusion 画图及其他功能的 bug，发布 v1.01正式版
 - 2023年3月21日，添加了非常多新功能 [#40](https://github.com/SnapdragonLee/ChatGPT-weBot/issues/40)，修复若干bug，发布 v1.00 正式版
 - 2023年3月4日 发布 v0.99-fix 版本，添加了 Stable Diffusion AI 作图功能（仅英语），修复若干bug

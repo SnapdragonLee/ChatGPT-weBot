@@ -150,6 +150,7 @@ Using ChatGPT-weBot based on ChatGPT(API key call), Stable Diffusion AI drawing 
 
 ## Log
 
+- 2023.3.24 Exception handler updates and other pull requests from [rogue-shadowdancer](https://github.com/rogue-shadowdancer) and [wbbeyourself](https://github.com/wbbeyourself)
 - 2023.3.23 Fix bugs for Stable Diffusion and others, released v1.01 version
 - 2023.3.21 Add plenty of new features, fixed bugs, released v1.00 version
 - 2023.3.4 Add Stable Diffusion into function (English Only)
