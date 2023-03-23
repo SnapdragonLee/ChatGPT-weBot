@@ -7,9 +7,10 @@ class ChatbotError(Exception):
     """
     Base class for exceptions in this module.
     Error codes:
+    -3: response runtime error
+    -2: API busy error
     -1: User error
     0: Unknown error
-    1: API busy error
     """
 
     error: str
@@ -148,17 +149,15 @@ class Chatbot:
                 }
                 try:
                     response = requests.get('https://ddg-webapp-aagd.vercel.app/search', headers=headers, params=params,
-                                        timeout=10)
+                                            timeout=10)
                 except Exception as e:
-                    print(f"【ddg-webapp Exception】: {e}")
-                    raise ChatbotError("ConnectionError", "Cannot access internet info", -1)
+                    # print(f"【ddg-webapp Exception】: {e}")
+                    raise ChatbotError("ConnectionError", "ddg-webapp API Error", -2)
 
                 if response.status_code != 200:
                     raise ChatbotError("ConnectionError", "Cannot access internet info", response.status_code)
                 else:
                     json_data = json.loads(response.content)
-
-                print(f"search result json: \n{json_data}")
 
                 result = ""
                 try:
@@ -167,7 +166,8 @@ class Chatbot:
                         result += item["body"] + "\n"
                         result += "URL: " + item["href"] + "\n\n"
                 except Exception as e:
-                    print(f"【error】parse json data: {e}")
+                    raise ChatbotError("Json Parse Error", e.__str__(), -1)
+                    # print(f"parse json_data error: {e}")
 
                 result = result.strip()
                 if result != '':
@@ -192,25 +192,25 @@ class Chatbot:
 
             try:
                 response = self.session.post(
-                url="https://api.openai.com/v1/chat/completions",
-                headers={"Authorization": f"Bearer {self.api_key}"},
-                json={
-                    "model": self.engine,
-                    "messages": self.conversation,
-                    "temperature": self.temperature,
-                    "top_p": self.top_p,
-                    "presence_penalty": self.presence_penalty,
-                    "frequency_penalty": self.frequency_penalty,
-                    "n": self.reply_count,
-                    "user": "user",
-                    "max_tokens": self.get_rest_tokens(),
-                },
-                timeout=timeout
-            )
+                    url="https://api.openai.com/v1/chat/completions",
+                    headers={"Authorization": f"Bearer {self.api_key}"},
+                    json={
+                        "model": self.engine,
+                        "messages": self.conversation,
+                        "temperature": self.temperature,
+                        "top_p": self.top_p,
+                        "presence_penalty": self.presence_penalty,
+                        "frequency_penalty": self.frequency_penalty,
+                        "n": self.reply_count,
+                        "user": "user",
+                        "max_tokens": self.get_rest_tokens(),
+                    },
+                    timeout=timeout
+                )
             except Exception as e:
-                print(f"【ChatGPT Exception】: {e}")
-                raise ChatbotError("ConnectionError", '网络繁忙..请稍后再试.', -1)
-            
+                # print(f"ChatGPT Exception: {e}")
+                raise ChatbotError("ConnectionError", f'ChatGPT API error {e.__str__()}', -3)
+
             times -= 1
 
             if times == 0 and response.status_code != 200:

@@ -128,7 +128,7 @@ class ImgTask:
         if msg["msg"] == "queue_full":
             if self.times < 5:
                 # raise
-                err = ChatbotError("ConnectionError", "Public API of Stable Diffusion V2.1 is busy, try it later", 1)
+                err = ChatbotError("ConnectionError", "Public API of Stable Diffusion V2.1 is busy, try it later", -2)
                 send_txt_msg(text_string=err.__str__(), wx_id=self.room_id if self.is_room else self.wx_id)
             else:
                 self.times += 1
