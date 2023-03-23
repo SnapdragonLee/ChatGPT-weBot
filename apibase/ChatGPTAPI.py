@@ -146,22 +146,35 @@ class Chatbot:
                     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                                   'Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.57',
                 }
-                response = requests.get('https://ddg-webapp-aagd.vercel.app/search', headers=headers, params=params,
+                try:
+                    response = requests.get('https://ddg-webapp-aagd.vercel.app/search', headers=headers, params=params,
                                         timeout=10)
+                except Exception as e:
+                    print(f"【ddg-webapp Exception】: {e}")
+                    raise ChatbotError("ConnectionError", "Cannot access internet info", -1)
 
                 if response.status_code != 200:
                     raise ChatbotError("ConnectionError", "Cannot access internet info", response.status_code)
                 else:
                     json_data = json.loads(response.content)
 
-                result = ""
-                for item in json_data:
-                    result += item["title"] + "\n"
-                    result += item["body"] + "\n"
-                    result += "URL: " + item["href"] + "\n\n"
+                print(f"search result json: \n{json_data}")
 
-                self.__add_to_conversation(result.strip(), "system")
-                self.prev_question.append([result.strip(), prompt])
+                result = ""
+                try:
+                    for item in json_data:
+                        result += item["title"] + "\n"
+                        result += item["body"] + "\n"
+                        result += "URL: " + item["href"] + "\n\n"
+                except Exception as e:
+                    print(f"【error】parse json data: {e}")
+
+                result = result.strip()
+                if result != '':
+                    self.__add_to_conversation(result.strip(), "system")
+                    self.prev_question.append([result.strip(), prompt])
+                else:
+                    self.prev_question.append([prompt])
 
             else:
                 self.prev_question.append([prompt])
@@ -176,7 +189,9 @@ class Chatbot:
 
         times = 3
         while times > 0:
-            response = self.session.post(
+
+            try:
+                response = self.session.post(
                 url="https://api.openai.com/v1/chat/completions",
                 headers={"Authorization": f"Bearer {self.api_key}"},
                 json={
@@ -192,6 +207,10 @@ class Chatbot:
                 },
                 timeout=timeout
             )
+            except Exception as e:
+                print(f"【ChatGPT Exception】: {e}")
+                raise ChatbotError("ConnectionError", '网络繁忙..请稍后再试.', -1)
+            
             times -= 1
 
             if times == 0 and response.status_code != 200:
