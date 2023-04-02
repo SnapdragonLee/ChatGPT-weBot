@@ -73,7 +73,7 @@ class ChatTask:
 
         print("reply: " + self.reply)
         if self.is_citation:
-            self.reply = (self.bot.prev_question[-1] if self.type == "rg" else (
+            self.reply = (self.bot.prev_question[-1][-1] if self.type == "rg" else (
                 "用150字内总结全部对话" if self.type == "z" else self.prompt)) + "\n- - - - - - - - - -\n" + self.reply.strip()
         self.ws.send(send_txt_msg(text_string=self.reply.strip(), wx_id=self.room_id if self.is_room else self.wx_id))
 
