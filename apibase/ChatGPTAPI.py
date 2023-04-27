@@ -1,7 +1,7 @@
 import json
 import requests
 import tiktoken
-
+import time
 
 class ChatbotError(Exception):
     """
@@ -48,7 +48,7 @@ class Chatbot:
         self.reply_count = config["reply_count"]
         self.system_character = config["system_character"]
         self.default = self.system_character
-
+        self.conversation_timeout = config["conversation_timeout"]
         self.proxy = config["proxy"]
 
         self.session = requests.Session()
@@ -61,7 +61,8 @@ class Chatbot:
         self.conversation = [{"role": "system", "content": self.system_character}]
         self.prev_question = []
         self.question_num = 0
-
+        self.last_conversation_time = time.time()
+        
     def set_system_character(self, role: str) -> None:
         with open(".config/sys_character.json", encoding="utf-8") as f:
             sys_char: dict = json.load(f)
@@ -124,6 +125,14 @@ class Chatbot:
         """
         Ask a question
         """
+        # 会话超时自动重置对话
+        current_time = time.time()
+
+        if current_time - self.last_conversation_time > self.conversation_timeout:
+            self.reset()
+
+        # 更新计时器
+        self.last_conversation_time = current_time
         if prompt is not None:
             if access_internet:
                 params = (
