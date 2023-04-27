@@ -8,6 +8,6 @@
   "frequency_penalty": 0.0,
   "reply_count": 1,
   "system_character": "You are ChatGPT, a large language model trained by OpenAI. Respond conversationally",
-
+  "conversation_timeout": 36000,
   "proxy": ""
 }
