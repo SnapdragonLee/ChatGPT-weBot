@@ -96,7 +96,7 @@ def handle_recv_txt_msg(j):
                 b'\xe6\xac\xa2\xe8\xbf\x8e\xe4\xbd\xbf\xe7\x94\xa8 ChatGPT-weBot \xef\xbc\x8c\xe6\x9c\xac\xe9'
                 b'\xa1\xb9\xe7\x9b\xae\xe5\x9c\xa8 github \xe5\x90\x8c\xe5\x90\x8d\xe5\xbc\x80\xe6\xba\x90\n',
                 'utf-8') + helpKey + " 查看可用命令帮助\n" + \
-                    ((groupChatKey + " 提问群聊天机器人\n ") if is_room else (privateChatKey + " 提问聊天机器人\n ")) + \
+                    ((groupChatKey + " 提问群聊天机器人\n ") if is_room else ( "直接提问聊天机器人\n" if prvReplyAlways else (privateChatKey + " 提问聊天机器人\n ")))  + \
                     resetChatKey + " 重置上下文\n" + \
                     regenerateKey + " 重新生成答案\n" + \
                     rollbackKey + " +数字n 回滚到倒数第n个问题\n" + \
@@ -178,7 +178,7 @@ def handle_recv_txt_msg(j):
             ig = ImgTask(ws, prompt_list, wx_id, room_id, is_room, "2.1")
             img_que.put(ig)
 
-        elif (content.startswith(privateChatKey) and not is_room) or (content.startswith(groupChatKey) and is_room):
+        elif (prvReplyAlways or content.startswith(privateChatKey) and not is_room) or (content.startswith(groupChatKey) and is_room):
             content = re.sub("^" + (groupChatKey if is_room else privateChatKey), "",
                              content, 1).lstrip()
             if content.startswith(internetKey):
