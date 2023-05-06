@@ -1,7 +1,5 @@
 ### 配置详细指引
 
-
-
 ###### api_config.json
 
 ```json
@@ -34,9 +32,7 @@
 
 ***2. 请不要更改 `reply_count`。***
 
-
-
-------
+---
 
 ###### config.json
 
@@ -44,7 +40,7 @@
 {
   // 是否开启 ChatGPT 自动回复
   "autoReply": true,
-    
+  
   // 在回复时，查询联网信息 (WebChatGPT) 辅助回答
   "internetKey": "-o",
   // 联网信息条数 (1~10)
@@ -67,12 +63,18 @@
   // 总结对话并缩减 token
   "conclusionKey": "-z",
 
-  // 是否开启 Stable Diffusion 图片回复（仅英语）
-  "stableDiffRly": true,
-  // 在群聊中设置唤醒 AI画图功能关键词
+  // 是否开启 Stable Diffusion 图片回复（仅英语）api已失效
+  "stableDiffRly": false,
+  // 是否开启 openAi 图片回复
+  "openAiImg": true,
+  // 在群聊中设置唤醒 AI画图功能关键词 使用chatgpt
   "groupImgKey": "-i",
-  // 在私聊中设置唤醒 AI画图功能关键词
+  // 在私聊中设置唤醒 AI画图功能关键词 使用chatgpt
   "privateImgKey": "-i",
+  // 在群聊中设置唤醒 AI画图功能关键词 使用Stable Diffusion V2.1
+  "sdiGroupImgKey": "-sdi",
+  // 在私聊中设置唤醒 AI画图功能关键词 使用Stable Diffusion V2.1
+  "sdiPrivateImgKey": "-sdi",
   // 接入负语句关键词
   "negativePromptKey": "-n",
   // 是否开启图片缓存（开启后会在 .cache 文件夹中缓存）
@@ -93,17 +95,13 @@
 
 ***2. 接入负反馈语句关键词功能示例为：`-i skylines, 4k, concept arts -n no girl, no body` 即可将 `skylines, 4k, concept arts` 作为正提示， `no girl, no body` 作为负提示输入给 stable Diffusion。***
 
-
-
-------
+---
 
 ###### rev_config.json
 
 暂时弃用，无需设置
 
-
-
-------
+---
 
 ###### server_config.json
 
@@ -114,9 +112,7 @@
 }
 ```
 
-
-
-------
+---
 
 ###### sys_character.json
 
@@ -133,4 +129,3 @@
 这个文件用于存放自定义机器人可扮演的所有角色（注意自定义角色名不允许两侧包含空字符，激活时角色名两侧可以有空字符）。
 
 注意！如果想要激活它，需要用自定义指令，且激活的角色在该配置文件中存在。例如按照默认配置，在聊天框中使用命令 "-pLinux Terminal" 或 "-p  Linux Terminal   	"，均可激活 `Linux Terminal` 对应的值作为机器人扮演的角色。
-

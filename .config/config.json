@@ -13,7 +13,10 @@
   "characterKey": "-p",
   "conclusionKey": "-z",
 
-  "stableDiffRly": true,
+  "stableDiffRly": false,
+  "sdiGroupImgKey": "-sdi",
+  "sdiPrivateImgKey": "-sdi",
+  "openAiImg": true,
   "groupImgKey": "-i",
   "privateImgKey": "-i",
   "negativePromptKey": "-n",

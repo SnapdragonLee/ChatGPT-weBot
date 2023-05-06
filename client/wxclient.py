@@ -96,15 +96,16 @@ def handle_recv_txt_msg(j):
                 b'\xe6\xac\xa2\xe8\xbf\x8e\xe4\xbd\xbf\xe7\x94\xa8 ChatGPT-weBot \xef\xbc\x8c\xe6\x9c\xac\xe9'
                 b'\xa1\xb9\xe7\x9b\xae\xe5\x9c\xa8 github \xe5\x90\x8c\xe5\x90\x8d\xe5\xbc\x80\xe6\xba\x90\n',
                 'utf-8') + helpKey + " 查看可用命令帮助\n" + \
-                    ((groupImgKey + " 提问群AI画图机器人(仅英语) ") if is_room else (privateImgKey + " 提问AI画图机器人(仅英语) ")) + \
-                    negativePromptKey + "可选负面提示\n" + \
-                    ((groupChatKey + " 提问群聊天机器人 ") if is_room else (privateChatKey + " 提问聊天机器人 ")) + \
-                    internetKey + "可联网\n" + \
+                    ((groupChatKey + " 提问群聊天机器人\n ") if is_room else (privateChatKey + " 提问聊天机器人\n ")) + \
                     resetChatKey + " 重置上下文\n" + \
                     regenerateKey + " 重新生成答案\n" + \
                     rollbackKey + " +数字n 回滚到倒数第n个问题\n" + \
                     characterKey + "更改机器人角色设定\n" + \
-                    conclusionKey + "总结对话"
+                    conclusionKey + "总结对话\n"
+            if openAiImg:
+                reply += ((groupImgKey + " 提问群AI画图机器人(openAI)\n ") if is_room else (privateImgKey + " 提问AI画图机器人(openAI)\n"))
+            if stableDiffRly:
+                reply += ((groupImgKey + " 提问群AI画图机器人(Stable Diffusion 仅英语)\n ") if is_room else (privateImgKey + " 提问AI画图机器人( Stable Diffusion 仅英语)\n "))
 
             nm = NormalTask(ws, content, reply, wx_id, room_id, is_room, False)
             nrm_que.put(nm)
@@ -154,9 +155,24 @@ def handle_recv_txt_msg(j):
             ct = ChatTask(ws, content, access_internet, chatbot, wx_id, room_id, is_room, is_citation, "z")
             chat_que.put(ct)
 
-        elif stableDiffRly and (
+        elif openAiImg and (
                 (content.startswith(privateImgKey) and not is_room) or (content.startswith(groupImgKey) and is_room)):
             content = re.sub("^" + (groupImgKey if is_room else privateImgKey), "", content, 1).lstrip()
+            #prompt_list = re.split(negativePromptKey, content)
+            if chatbot is None:
+                chatbot = Chatbot(
+                    api_config,
+                )
+                if is_room:
+                    global_dict[(wx_id, room_id)] = chatbot
+                else:
+                    global_dict[(wx_id, "")] = chatbot
+            ig = GptImgTask(ws, content, chatbot, wx_id, room_id, is_room)
+            img_que.put(ig)
+
+        elif stableDiffRly and (
+                (content.startswith(sdiPrivateImgKey) and not is_room) or (content.startswith(sdiGroupImgKey) and is_room)):
+            content = re.sub("^" + (sdiGroupImgKey if is_room else sdiPrivateImgKey), "", content, 1).lstrip()
             prompt_list = re.split(negativePromptKey, content)
 
             ig = ImgTask(ws, prompt_list, wx_id, room_id, is_room, "2.1")
