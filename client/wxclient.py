@@ -178,7 +178,7 @@ def handle_recv_txt_msg(j):
             ig = ImgTask(ws, prompt_list, wx_id, room_id, is_room, "2.1")
             img_que.put(ig)
 
-        elif (prvReplyAlways or content.startswith(privateChatKey) and not is_room) or (content.startswith(groupChatKey) and is_room):
+        elif ((prvReplyAlways or content.startswith(privateChatKey)) and not is_room) or (content.startswith(groupChatKey) and is_room):
             content = re.sub("^" + (groupChatKey if is_room else privateChatKey), "",
                              content, 1).lstrip()
             if content.startswith(internetKey):
