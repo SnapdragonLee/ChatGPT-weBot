@@ -80,6 +80,8 @@
 
   // View available command help
   "helpKey": "-h",
+  // Automatically sends images (store them in the images folder) when the help command is input
+  "imageHelpKey": true,
   // Setting keyword to reset context
   "resetChatKey": "-rs",
   // Setting keyword to regenerate previous answer

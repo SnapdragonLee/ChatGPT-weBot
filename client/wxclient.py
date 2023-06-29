@@ -106,7 +106,7 @@ def handle_recv_txt_msg(j):
                     characterKey + "更改机器人角色设定\n" + \
                     conclusionKey + "总结对话"
 
-            nm = NormalTask(ws, content, reply, wx_id, room_id, is_room, False)
+            nm = NormalTask(ws, content, reply, wx_id, room_id, is_room, False, has_imgHelp_command = True)
             nrm_que.put(nm)
 
         elif content.startswith(resetChatKey):
@@ -133,7 +133,7 @@ def handle_recv_txt_msg(j):
                 else:
                     reply = "请在回滚指令后输入有效数字"
 
-            nm = NormalTask(ws, content, reply, wx_id, room_id, is_room, is_citation)
+            nm = NormalTask(ws, content, reply, wx_id, room_id, is_room, is_citation, has_imgHelp_command = False)
             nrm_que.put(nm)
 
         elif content.startswith(characterKey):

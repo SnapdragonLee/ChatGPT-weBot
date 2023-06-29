@@ -85,7 +85,7 @@ class ChatTask:
 
 
 class NormalTask:
-    def __init__(self, ws, prompt, reply, wx_id, room_id, is_room, is_citation):
+    def __init__(self, ws, prompt, reply, wx_id, room_id, is_room, is_citation, has_imgHelp_command):
         self.ws = ws
         self.prompt = prompt
         self.reply = reply
@@ -93,6 +93,7 @@ class NormalTask:
         self.room_id = room_id
         self.is_room = is_room
         self.is_citation = is_citation
+        self.has_imgHelp_command = has_imgHelp_command
 
     def play(self):
         time.sleep(0.5)
@@ -101,6 +102,22 @@ class NormalTask:
         if self.is_citation:
             self.reply = self.prompt + "\n- - - - - - - - - -\n" + self.reply.strip()
         self.ws.send(send_txt_msg(text_string=self.reply.strip(), wx_id=self.room_id if self.is_room else self.wx_id))
+        if imageHelpKey and self.has_imgHelp_command:
+            images_path = self.get_images_path()
+            if images_path:
+                for full_image_path in images_path:
+                    self.ws.send(send_pic_msg(wx_id= self.room_id if self.is_room else self.wx_id, content=full_image_path))
+
+    @staticmethod
+    def get_images_path():
+        current_folder = os.path.dirname(os.path.abspath(__file__))
+        parent_folder = os.path.dirname(current_folder)
+        images_folder = os.path.join(parent_folder, "images")
+
+        images_path = []
+        for image in os.listdir(images_folder):
+            images_path.append(os.path.join(images_folder, image))            
+        return images_path
 
 
 class ImgTask:
