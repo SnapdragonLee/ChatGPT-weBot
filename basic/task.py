@@ -43,7 +43,8 @@ class ChatTask:
             else:
                 print("ask:" + self.bot.prev_question[-1][-1])
                 try:
-                    self.reply += self.bot.ask(prompt=None)
+                    reply_rg_list = self.bot.ask(prompt=None)
+                    self.reply += reply_rg_list[0]
                 except ChatbotError as CE:
                     self.reply += CE.__str__()
 
@@ -66,8 +67,13 @@ class ChatTask:
         elif self.type == "c":
             print("ask:" + self.prompt)
             try:
-                self.reply += self.bot.ask(prompt=self.prompt, access_internet=self.access,
-                                           access_result=internetResult)
+                reply_c_list = self.bot.ask(prompt=self.prompt, access_internet=self.access, access_result = internetResult)
+                if reply_c_list[1] <= 0:
+                    self.reply += reply_c_list[0]
+                    self.reply += "\n\ntokens超出限制, 输入“-rs”重置后再重新回答"
+                    print("tokens remain : ", reply_c_list[1])
+                else:
+                    self.reply += reply_c_list[0]
             except ChatbotError as CE:
                 self.reply += CE.__str__()
 
