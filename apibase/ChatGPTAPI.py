@@ -223,7 +223,7 @@ class Chatbot:
                 assist_text = response_text["content"]
 
                 self.__add_to_conversation(assist_text, response_role)
-                return assist_text
+                return [assist_text, self.get_rest_tokens()]
 
     def rollback_conversation(self, n: int = 1) -> None:
         """
