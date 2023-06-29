@@ -52,6 +52,7 @@ negativePromptKey = config["negativePromptKey"]
 isCached = config["isCached"]
 
 helpKey = config["helpKey"]
+imageHelpKey = config["imageHelpKey"]
 resetChatKey = config["resetChatKey"]
 regenerateKey = config["regenerateKey"]
 rollbackKey = config["rollbackKey"]

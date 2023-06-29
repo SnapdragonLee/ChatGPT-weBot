@@ -80,6 +80,8 @@
 
   // 查看可用命令帮助
   "helpKey": "-h",
+  // 发送命令帮助图片 (图片放在images文件夹里)
+  "imageHelpKey": true,
   // 设置重置上下文关键词
   "resetChatKey": "-rs",
   // 设置重新生成答案关键词
