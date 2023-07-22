@@ -26,7 +26,16 @@
   "system_character": "You are ChatGPT, a large language model trained by OpenAI. Respond conversationally",
 
   // 可选填写 http 或 https 代理
-  "proxy": ""
+  "proxy": "",
+
+  // 是否改成使用azure openai接口
+  "use_azure_openai": false,
+  //（如果使用azure openai接口请填写）你的azure openai接口地址
+  "openai_api_base": "https://YOUR_API.openai.azure.com/",
+  //（如果使用azure openai接口请填写）azure接口版本， 一般是固定的
+  "azure_api_version": "2023-06-01-preview",
+  //（如果使用azure openai接口请填写）azure部署模型名称，一般和openai不一样
+  "azure_deployment_name": "gpt-35-turbo"
 }
 ```
 

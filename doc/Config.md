@@ -27,6 +27,15 @@
 
   // Optional proxy of http or https
   "proxy": ""
+
+  // Whether to use the azure openai interface
+  "use_azure_openai": false,
+  // (If using azure openai interface please fill in) Your azure openai api base url
+  "openai_api_base": "https://YOUR_API.openai.azure.com/",
+  // (If using azure openai interface please fill in) azure api version, usually fixed
+  "azure_api_version": "2023-06-01-preview",
+  // (If using azure openai interface please fill in) azure deployment name, usually different from openai
+  "azure_deployment_name": "gpt-35-turbo"
 }
 ```
 

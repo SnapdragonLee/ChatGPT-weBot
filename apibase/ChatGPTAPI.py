@@ -47,6 +47,12 @@ class Chatbot:
         self.frequency_penalty = config["frequency_penalty"]
         self.reply_count = config["reply_count"]
         self.system_character = config["system_character"]
+        self.use_azure_openai = config.get("use_azure_openai", False)
+        if self.use_azure_openai:
+            self.openai_api_base = config.get("openai_api_base", "").rstrip("/")
+            self.azure_api_version = config.get("azure_api_version")
+            self.azure_deployment_name = config.get("azure_deployment_name")
+
         self.default = self.system_character
 
         self.proxy = config["proxy"]
@@ -189,11 +195,11 @@ class Chatbot:
 
         times = 3
         while times > 0:
-
             try:
-                response = self.session.post(
-                    url="https://api.openai.com/v1/chat/completions",
-                    headers={"Authorization": f"Bearer {self.api_key}"},
+                if self.use_azure_openai:
+                    response = self.session.post(
+                    url=f"{self.openai_api_base}/openai/deployments/{self.azure_deployment_name}/chat/completions?api-version={self.azure_api_version}",
+                    headers={"api-key": self.api_key},
                     json={
                         "model": self.engine,
                         "messages": self.conversation,
@@ -207,6 +213,23 @@ class Chatbot:
                     },
                     timeout=timeout
                 )
+                else:
+                    response = self.session.post(
+                        url="https://api.openai.com/v1/chat/completions",
+                        headers={"Authorization": f"Bearer {self.api_key}"},
+                        json={
+                            "model": self.engine,
+                            "messages": self.conversation,
+                            "temperature": self.temperature,
+                            "top_p": self.top_p,
+                            "presence_penalty": self.presence_penalty,
+                            "frequency_penalty": self.frequency_penalty,
+                            "n": self.reply_count,
+                            "user": "user",
+                            "max_tokens": self.get_rest_tokens(),
+                        },
+                        timeout=timeout
+                    )
             except Exception as e:
                 # print(f"ChatGPT Exception: {e}")
                 raise ChatbotError("ConnectionError", f'ChatGPT API error {e.__str__()}', -3)

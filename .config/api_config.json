@@ -9,5 +9,9 @@
   "reply_count": 1,
   "system_character": "You are ChatGPT, a large language model trained by OpenAI. Respond conversationally",
   "conversation_timeout": 36000,
-  "proxy": ""
+  "proxy": "",
+  "use_azure_openai": false,
+  "openai_api_base": "https://YOUR API.openai.azure.com",
+  "azure_api_version": "2023-06-01-preview",
+  "azure_deployment_name": "gpt-35-turbo"
 }

@@ -37,6 +37,7 @@ Using ChatGPT-weBot based on ChatGPT(API key call), Stable Diffusion AI drawing 
 - [x] Reset the whole conversation
 - [x] Support multithreaded conversation in one account
 - [x] No need to manually reboot service after error exists
+- [x] Support Azure OpenAI interface
 - [ ] Other
 
 

@@ -16,9 +16,16 @@ if api_config["engine"] not in [
     "gpt-4-0314",
     "gpt-4-32k",
     "gpt-4-32k-0314",
-]:
+] and not api_config.get("use_azure_openai", False):
     error = NotImplementedError("Unsupported engine {self.engine}")
     raise error
+
+# azure openai support
+if api_config.get("use_azure_openai", False):
+    # openai_api_base must be provided when use_azure_openai is set to True
+    assert api_config.get("openai_api_base"), "Missing Azure OpenAI API_BASE Config!"
+    assert api_config.get("azure_api_version"), "Missing Azure OpenAI API_VERSION Config!"
+    assert api_config.get("azure_deployment_name"), "Missing Azure OpenAI API DEPLOYMENT_NAME Config!"
 
 # server config
 with open(".config/server_config.json", encoding="utf-8") as f:
