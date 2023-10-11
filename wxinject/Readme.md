@@ -82,47 +82,26 @@
    cd {Project_DIR}/wxinject/
    ```
 
-2. 启动构建：
+2. 修改目录：请在本文将目录下的 `CMakeLists.txt` 中的第 **13**、**14** 行更改路径：
+
+   **将 `path/to/vcpkg.cmake` 替换为：`{vcpkg_install_DIR}/scripts/buildsystems/vcpkg.cmake`**；
+
+   **还需将 `path/to/vcpkg/lib_root` 替换为：`{vcpkg_install_DIR}/installed/x64-windows` 。** 
+
+   **其中：`{vcpkg_install_DIR}` 为 vcpkg 的安装目录**
+
+3. 启动构建：
 
    ```bash
    cmake -DCMAKE_C_COMPILER=cl.exe -DCMAKE_CXX_COMPILER=cl.exe -DCMAKE_ASM_MASM_COMPILER=ml64.exe -DCMAKE_BUILD_TYPE=Release -S ./ -B ./build/ -G Ninja
    ```
 
-   **请注意：你需要将`-DCMAKE_TOOLCHAIN_FILE:FILEPATH="path/to/vcpkg.cmake"` 替换掉，其位置在 vcpkg 安装目录中： `{vcpkg_DIR}/scripts/buildsystems/vcpkg.cmake`** 
+   
 
-3. 
+4. 上述构建之后，如果过程没有报错，且在 `./build/` 中看到内容，则执行最后一步：
 
+   ```bash
+   cmake --build ./build/
+   ```
 
-
-
-
-
-
-环境：
-cl.exe目录= c:/cl.exe  
-ml64.exe目录 =c:/ml64.exe  
-vcpkg目录 = c:/vcpkg
-wxhelper目录 = c:/wxhelper
-
-```
-
-vcpkg  install detours:x64-windows 
-vcpkg  install nlohmann-json:x64-windows
-
-cd wxhelper  
-mkdir build  
-cd build  
-cmake -DCMAKE_C_COMPILER=cl.exe  \
--DCMAKE_CXX_COMPILER=cl.exe \
--DCMAKE_ASM_MASM_COMPILER=ml64.exe \
--DCMAKE_BUILD_TYPE=Debug \
--DCMAKE_INSTALL_PREFIX=C:/wxhelper/install/x64-debug \
--DCMAKE_TOOLCHAIN_FILE:FILEPATH=C:/vcpkg/scripts/buildsystems/vcpkg.cmake \
--SC:c:/wxhelper \
--BC:c:/wxhelper/build/x64-debug\
--G Ninja  
-cmake --build ..  
-
-cmake -DCMAKE_C_COMPILER=cl.exe -DCMAKE_CXX_COMPILER=cl.exe -DCMAKE_ASM_MASM_COMPILER=ml64.exe -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="C:/Users/SNAP_11800H/Downloads/Programs/wxhelper/build/install/" -DCMAKE_TOOLCHAIN_FILE:FILEPATH="C:/Users/SNAP_11800H/Downloads/Compressed/vcpkg-2023.08.09/scripts/buildsystems/vcpkg.cmake" -S ./ -B ./build/ -G Ninja
-```
-如果有错误按错误提示修正即可。   
+   即可在 `./bin/` 目录下得到 `wxinject.dll`

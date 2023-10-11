@@ -8,10 +8,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D '_UNICODE' /D 'UNICODE' ")
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
 enable_language(ASM_MASM)
-SET(CMAKE_ASM_NASM_FLAGS "-w0")
+set(CMAKE_ASM_NASM_FLAGS "-w0")
 
-set(CMAKE_PREFIX_PATH "C:/Users/SNAP_11800H/Downloads/Compressed/vcpkg-2023.08.09/installed/x64-windows")
-set(CMAKE_TOOLCHAIN_FILE "C:/Users/SNAP_11800H/Downloads/Compressed/vcpkg-2023.08.09/scripts/buildsystems/vcpkg.cmake")
+set(CMAKE_TOOLCHAIN_FILE "path/to/vcpkg.cmake")
+set(CMAKE_PREFIX_PATH "path/to/vcpkg/lib_root")
 
 file(GLOB CPP_FILES ${PROJECT_SOURCE_DIR}/src/*.cc ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.c)
 file(GLOB ASM_FILES ${PROJECT_SOURCE_DIR}/src/*.asm)

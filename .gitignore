@@ -5,5 +5,7 @@
 
 wxinject/bin/*.manifest
 wxinject/build*
+wxinject/cmake*
+wxinject/self*
 
 temp/
