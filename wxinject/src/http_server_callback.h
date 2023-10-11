@@ -10,8 +10,11 @@ void StartHttpServer(wxhelper::HttpServer *server);
 
 void EventHandler(struct mg_connection *c, int ev, void *ev_data,
                   void *fn_data);
+
 void HandleHttpRequest(struct mg_connection *c, void *ev_data);
-void HandleWebsocketRequest(struct mg_connection *c, void *ev_data);
 std::string HttpDispatch(struct mg_connection *c, struct mg_http_message *hm);
+
+void HandleWebsocketRequest(struct mg_connection *c, void *ev_data);
+void WsDispatch(mg_ws_message *hm, std::string &string);
 
 #endif

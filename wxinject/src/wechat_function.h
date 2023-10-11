@@ -80,6 +80,31 @@ typedef int(__cdecl* sqlite3_finalize)(UINT64* pStmt);
 
 /***************************sqlite3  end*************************************/
 
+const int HEART_BEAT = 5005;
+const int RECV_TXT_MSG = 1;
+const int RECV_PIC_MSG = 3;
+const int RECV_FRIEND_REQUEST = 37;
+const int RECV_TXT_CITE_MSG = 49;
+
+const int TXT_MSG = 555;
+const int PIC_MSG = 500;
+const int AT_MSG = 550;
+
+const int USER_LIST = 5000;
+const int GET_USER_LIST_SUCCESS = 5001;
+const int GET_USER_LIST_FAIL = 5002;
+const int ATTACH_FILE = 5003;
+const int CHATROOM_MEMBER = 5010;
+const int CHATROOM_MEMBER_NICK = 5020;
+
+const int PERSONAL_LOGIN = 6500;
+const int PERSONAL_SELFINFO = 6501;
+
+const int PERSONAL_DETAIL = 6550;
+
+const int DESTROY_ALL = 9999;
+const int OTHER_REQUEST = 10000;
+
 struct TableInfo {
   char *name;
   INT64 name_len;

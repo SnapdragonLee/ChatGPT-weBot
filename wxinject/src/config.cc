@@ -7,7 +7,7 @@ Config::Config(/* args */) {}
 Config::~Config() {}
 
 void Config::Initialize() {
-  port_ = GetPrivateProfileInt("config", "Port", 19088, "./config.ini");
+  port_ = GetPrivateProfileInt("config", "Port", 5555, "./config.ini");
 }
 int Config::GetPort() { return port_; }
 
