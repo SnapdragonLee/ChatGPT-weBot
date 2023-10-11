@@ -1,3 +1,0 @@
-[submodule spdlog]
-    path = wxinject/spdlog
-    url = https://github.com/gabime/spdlog
