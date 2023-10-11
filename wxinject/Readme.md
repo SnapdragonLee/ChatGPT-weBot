@@ -6,7 +6,7 @@
 
 
 
-## 一、安装 Visual Studio
+## 一、安装 Visual Studio Build Tools
 
 *如果你已经安装了 Visual Studio 完整工具链，可以跳过这个步骤。*
 
@@ -14,7 +14,7 @@
 
 1. 下载 `Visual Studio Build Tools` 并安装。[Microsoft C++ Build Tools - Visual Studio](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
 
-2. 安装后打开 Visual Studio Installer，会让你选择下载组件。在顶端的 `Individual components` 选项中 **最少选择** 这 3 个即可：
+2. 安装后快速启动栏中打开 `Visual Studio Installer`，会让你选择下载组件。在顶端的 `Individual components` 选项中 **最少选择** 这 3 个即可：
 
    `C++ CMake tools for Windows`；
 
@@ -32,7 +32,7 @@
 
    选择好后右下角 `Install` 即可。
 
-3. 安装好以后，检查快速启动应用中是否为以下结构：
+3. 安装好以后，检查快速启动中是否为以下结构：
 
    ![image-20231011160641656](Readme.assets/image-20231011160641656.png)
 
@@ -63,19 +63,36 @@
    .\vcpkg\vcpkg install nlohmann-json:x64-windows
    ```
 
-4. 回到本文件所在目录，如果最开始克隆 `webot-chatgpt` 的时候没有使用 `--recursive` 参数（即目前目录下有 `spdlog` 文件夹），则需要在本步骤重新更新：
+4. 回到本文件所在目录，如果最开始克隆 `webot-chatgpt` 的时候没有使用 `--recursive` 参数（即目前目录下有 `spdlog` 文件夹），则需要在本步骤更新子库 `spdlog`：
 
+   ```bash
+   git submodule init
+   git submodule update
    ```
-   
-   ```
-
-   
-
-5. 
 
    
 
 ## 三、CMake 构建
+
+使用 `Visual Studio Build Tools` 中的 CMake 尝试构建 `wxinject.dll` 文件。
+
+1. 在快速启动中找到 `x64 Native Tools Command Prompt` ，启动后 **将目录换到本文件的目录**：
+
+   ```bash
+   cd {Project_DIR}/wxinject/
+   ```
+
+2. 启动构建：
+
+   ```bash
+   cmake -DCMAKE_C_COMPILER=cl.exe -DCMAKE_CXX_COMPILER=cl.exe -DCMAKE_ASM_MASM_COMPILER=ml64.exe -DCMAKE_BUILD_TYPE=Release -S ./ -B ./build/ -G Ninja
+   ```
+
+   **请注意：你需要将`-DCMAKE_TOOLCHAIN_FILE:FILEPATH="path/to/vcpkg.cmake"` 替换掉，其位置在 vcpkg 安装目录中： `{vcpkg_DIR}/scripts/buildsystems/vcpkg.cmake`** 
+
+3. 
+
+
 
 
 

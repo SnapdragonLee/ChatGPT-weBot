@@ -1,3 +1,9 @@
 *idea/
+
 **/__pycache__
-.cache/*
+.cache/
+
+wxinject/bin/*.manifest
+wxinject/build*
+
+temp/
