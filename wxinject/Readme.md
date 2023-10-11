@@ -88,7 +88,7 @@
 
    **还需将 `path/to/vcpkg/lib_root` 替换为：`{vcpkg_install_DIR}/installed/x64-windows` 。** 
 
-   **其中：`{vcpkg_install_DIR}` 为 vcpkg 的安装目录**
+   **其中：`{vcpkg_install_DIR}` 为 vcpkg 的安装目录。**
 
 3. 启动构建：
 
@@ -104,4 +104,12 @@
    cmake --build ./build/
    ```
 
-   即可在 `./bin/` 目录下得到 `wxinject.dll`
+   即可在 `./bin/` 目录下得到 `wxinject.dll`。
+
+
+
+## 四、在 IDE 中导入
+
+如果你安装的是全套的 `Visual Stduio`，那么可以直接用它载入项目。
+
+如果您安装的是 `Visual Studio Build Tools` ，则使用存在 `cmake` 支持的 IDE 导入 `Visual Studio Build Tools` 工具链，并将 `wxinject/` 当作项目根目录载入。这样就可以在你喜欢的 IDE 上编辑了，完美满足自定义代码需求和最小安装。
