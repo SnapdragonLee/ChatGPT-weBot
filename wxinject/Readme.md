@@ -1,0 +1,111 @@
+﻿# WxInject 编译
+
+[TOC]
+
+对于大部分人来说，很少接触到 **汇编/C/C++** 等语言的编程。对于这些语言的编译链接来说，工具链非常重要。很多人想临时开发的用户基本都没有安装 `Visual Studio`、`vcpkg` 等工具。下面说下如何从零开始最快速地配置工具链，并自行编译 `WxInject`，从而满足自定义代码的需求。
+
+
+
+## 一、安装 Visual Studio
+
+*如果你已经安装了 Visual Studio 完整工具链，可以跳过这个步骤。*
+
+如果你的电脑上没有安装过 `Visual Studio`，你可以选择安装最全的 `Visual Studio`；如果你有可替代的 IDE 存在（例如 CLion）也可以选择仅仅安装 `Visual Studio Build Tools`。这里讲解后者，因为空间占用小，安装速度快。
+
+1. 下载 `Visual Studio Build Tools` 并安装。[Microsoft C++ Build Tools - Visual Studio](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+
+2. 安装后打开 Visual Studio Installer，会让你选择下载组件。在顶端的 `Individual components` 选项中 **最少选择** 这 3 个即可：
+
+   `C++ CMake tools for Windows`；
+
+   `MSVC v143 - VS 2022 C++ x64/x86 build tools (Latest)`；
+
+   `Windows 10/11 SDK`（SDK 后面括号中选择的是内核版本，可以在 **设置(Settings) -> 系统(System) -> 关于(About)** 中找到。**例如内核如果是 Win10 21H2，就选择 Windows 10 SDK (10.0.19041.0) 就可以了；如果内核是 Win 11 的 21H2，则选择 Windows 11 SDK (10.0.22000.0) 即可。**下图是我的 Win10 内核版本截图）
+
+   ![image-20231011155209673](Readme.assets/image-20231011155209673.png)
+
+   
+
+   独立组件选择后右侧栏应显示为：
+
+   ![image-20231011154509899](Readme.assets/image-20231011154509899.png)
+
+   选择好后右下角 `Install` 即可。
+
+3. 安装好以后，检查快速启动应用中是否为以下结构：
+
+   ![image-20231011160641656](Readme.assets/image-20231011160641656.png)
+
+   如果出现了 `x64 Native Tools Command Prompt` 且能正常打开，即安装成功。
+
+   
+
+## 二、安装 vcpkg 和 开发库
+
+下面由于用到 C/C++ 共享开发库，因此使用 vcpkg 进行管理。
+
+1. 直接从 Github 将 vcpkg 克隆到你想要的位置：
+
+   ```bash
+   git clone https://github.com/microsoft/vcpkg
+   ```
+
+2. 构建 vcpkg 运行程序：
+
+   ```bash
+   .\vcpkg\bootstrap-vcpkg.bat
+   ```
+
+3. 安装 `detours`, `nlohmann-json` 共享库：
+
+   ```bash
+   .\vcpkg\vcpkg install detours:x64-windows 
+   .\vcpkg\vcpkg install nlohmann-json:x64-windows
+   ```
+
+4. 回到本文件所在目录，如果最开始克隆 `webot-chatgpt` 的时候没有使用 `--recursive` 参数（即目前目录下有 `spdlog` 文件夹），则需要在本步骤重新更新：
+
+   ```
+   
+   ```
+
+   
+
+5. 
+
+   
+
+## 三、CMake 构建
+
+
+
+
+
+环境：
+cl.exe目录= c:/cl.exe  
+ml64.exe目录 =c:/ml64.exe  
+vcpkg目录 = c:/vcpkg
+wxhelper目录 = c:/wxhelper
+
+```
+
+vcpkg  install detours:x64-windows 
+vcpkg  install nlohmann-json:x64-windows
+
+cd wxhelper  
+mkdir build  
+cd build  
+cmake -DCMAKE_C_COMPILER=cl.exe  \
+-DCMAKE_CXX_COMPILER=cl.exe \
+-DCMAKE_ASM_MASM_COMPILER=ml64.exe \
+-DCMAKE_BUILD_TYPE=Debug \
+-DCMAKE_INSTALL_PREFIX=C:/wxhelper/install/x64-debug \
+-DCMAKE_TOOLCHAIN_FILE:FILEPATH=C:/vcpkg/scripts/buildsystems/vcpkg.cmake \
+-SC:c:/wxhelper \
+-BC:c:/wxhelper/build/x64-debug\
+-G Ninja  
+cmake --build ..  
+
+cmake -DCMAKE_C_COMPILER=cl.exe -DCMAKE_CXX_COMPILER=cl.exe -DCMAKE_ASM_MASM_COMPILER=ml64.exe -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="C:/Users/SNAP_11800H/Downloads/Programs/wxhelper/build/install/" -DCMAKE_TOOLCHAIN_FILE:FILEPATH="C:/Users/SNAP_11800H/Downloads/Compressed/vcpkg-2023.08.09/scripts/buildsystems/vcpkg.cmake" -S ./ -B ./build/ -G Ninja
+```
+如果有错误按错误提示修正即可。   
