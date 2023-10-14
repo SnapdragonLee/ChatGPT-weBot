@@ -80,30 +80,75 @@ typedef int(__cdecl* sqlite3_finalize)(UINT64* pStmt);
 
 /***************************sqlite3  end*************************************/
 
-const int HEART_BEAT = 5005;
+const int RECV_SERVER_HINT = 0;
 const int RECV_TXT_MSG = 1;
 const int RECV_PIC_MSG = 3;
+const int RECV_SNS_MSG = 9;
 const int RECV_FRIEND_REQUEST = 37;
-const int RECV_TXT_CITE_MSG = 49;
+const int RECV_STICKER_MSG = 47;
+const int RECV_XML_MSG = 49; // TXT_CITE, FILE, GZH
+const int RECV_DVC_MSG = 51; // Type from DVC below this section
+// const int HEART_BEAT = 5005;
 
-const int TXT_MSG = 555;
-const int PIC_MSG = 500;
-const int AT_MSG = 550;
+const int RECV_HOOK_SNS = 50;
+const int RECV_OTHER_MSG = 10002; // REVOKE, PAT,
 
-const int USER_LIST = 5000;
-const int GET_USER_LIST_SUCCESS = 5001;
-const int GET_USER_LIST_FAIL = 5002;
-const int ATTACH_FILE = 5003;
-const int CHATROOM_MEMBER = 5010;
+// By other device type 51
+const int OP_READ_MSG_WHILE_OPEN_DVC = RECV_OTHER_MSG + 1;
+const int OP_OPEN_CHAT_DVC = RECV_OTHER_MSG + 2;
+const int OP_REFRESH_LIST_DVC = RECV_OTHER_MSG + 4; // refresh user list ?
+const int OP_SNS_CHECK_UNREAD_DVC = RECV_OTHER_MSG + 7; //
+const int OP_SNS_SELF_ACTION_DVC = RECV_OTHER_MSG + 9; // CHECK_SNS_UPDATE, DELETE MSG
+const int OP_REFRESH_MSG_DVC = RECV_OTHER_MSG + 11;
+
+
+const int ADD_MEMBER_CHATROOM = 100;
+const int DEL_MEMBER_CHATROOM = 101;
+const int INVITE_MEMBER_CHATROOM = 102;
+const int MODIFY_SELF_NAME = 105;
+
+const int CREATE_CHATROOM = 120;
+const int QUIT_CHATROOM = 121;
+const int ADD_TOP_MSG = 125;
+const int DEL_TOP_MSG = 126;
+
+const int SEND_PIC_MSG = 500;
+const int SEND_TXT_MSG = 550;
+const int SEND_FORWARD_MSG = 551;
+const int SEND_FORWARD_GZH_MSG = 552;
+const int SEND_FORWARD_GZH_ID_MSG = 553;
+const int SEND_TXT_AT_MSG = 555;
+const int SEND_PAT_MSG = 556;
+const int SEND_APPLET_MSG = 560;
+const int SEND_ATTACH_FILE = 570;
+const int SEND_CUSTOM_EMJ = 580;
+
+const int DECODE_IMG_FILE = 690;
+const int OCR_IMG_FILE = 691;
+const int DW_ATTACH_FILE = 696;
+const int DW_VOICE_FILE = 697;
+
+const int ADD_MSG_FAVOUR = 1000;
+const int ADD_IMG_FAVOUR = 1001;
+
+const int GET_SNS_FIRST = 1500;
+const int GET_SNS_NEXT = 1501;
+
+const int GET_USER_LIST = 5000;
+const int GET_CHATROOM_INFO = 5050;
+const int GET_CHATROOM_MEMBER = 5010;
 const int CHATROOM_MEMBER_NICK = 5020;
 
-const int PERSONAL_LOGIN = 6500;
-const int PERSONAL_SELFINFO = 6501;
+const int CHECK_LOGIN = 6500;
+const int CHECK_SELF_INFO = 6501;
+const int CHECK_DB_INFO = 6502;
+const int CHECK_PERSON_INFO = 6550;
 
-const int PERSONAL_DETAIL = 6550;
+const int EXEC_SQL = 7500;
 
-const int DESTROY_ALL = 9999;
-const int OTHER_REQUEST = 10000;
+const int ENABLE_WECHAT_LOG = 10098;
+const int DISABLE_WECHAT_LOG = 10099;
+const int DESTROY_ALL = 10100;
 
 struct TableInfo {
   char *name;
