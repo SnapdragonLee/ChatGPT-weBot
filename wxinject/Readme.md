@@ -118,7 +118,19 @@
 
 
 
+## 五、使用与测试
+
+请使用 `bin` 目录下自带的 `Injector.exe` 对 dll 文件进行注入，最简单的注入方式为：
+
+```bash
+./Injector.exe -n Wechat.exe -i ./bin/wxinject.dll
+```
+
+其余指令请在 [Reference](#Reference) 中的原仓库链接中查看
+
+
+
 # Reference
 
-本库的源作者仓库为 [ttttupup/wxhelper](https://github.com/ttttupup/wxhelper)，本作者只是对他的代码进行了一定程度的魔改并加入了 websocket 客户端，请大家给他 star。欢迎大家对这份代码提意见/提PR。
-
+1. 本库的源作者仓库为 [ttttupup/wxhelper](https://github.com/ttttupup/wxhelper)，本作者只是对他的代码进行了一定程度的魔改并加入了 websocket 客户端，请大家给他 star。欢迎大家对这份代码提意见/提PR。
+2. 本仓库中的 `Injector.exe` (versionv1.2.0) 来源于 [nefarius/Injector](https://github.com/nefarius/Injector)。
