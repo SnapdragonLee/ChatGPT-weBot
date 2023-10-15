@@ -1319,17 +1319,6 @@ void WsDispatch(struct mg_ws_message *wm, std::string &output) {
             break;
         }
 
-        case common::DESTROY_ALL: {
-            success = wxhelper::hooks::UnHookWsSyncMsg();
-            ret_data = {
-                    {"code", success},
-                    {"data", {}},
-                    {"type", type},
-                    {"msg",  "success"}};
-            output = ret_data.dump();
-            break;
-        }
-
         default:
             ret_data = {
                     {"code", 200},

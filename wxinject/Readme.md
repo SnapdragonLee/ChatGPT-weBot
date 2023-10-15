@@ -113,3 +113,12 @@
 如果你安装的是全套的 `Visual Stduio`，那么可以直接用它载入项目。
 
 如果您安装的是 `Visual Studio Build Tools` ，则使用存在 `cmake` 支持的 IDE 导入 `Visual Studio Build Tools` 工具链，并将 `wxinject/` 当作项目根目录载入。这样就可以在你喜欢的 IDE 上编辑了，完美满足自定义代码需求和最小安装。
+
+
+
+
+
+# Reference
+
+本库的源作者仓库为 [ttttupup/wxhelper](https://github.com/ttttupup/wxhelper)，本作者只是对他的代码进行了一定程度的魔改并加入了 websocket 客户端，请大家给他 star。欢迎大家对这份代码提意见/提PR。
+

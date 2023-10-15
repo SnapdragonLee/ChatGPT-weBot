@@ -96,10 +96,10 @@ const int RECV_OTHER_MSG = 10002; // REVOKE, PAT,
 // By other device type 51
 const int OP_READ_MSG_WHILE_OPEN_DVC = RECV_OTHER_MSG + 1;
 const int OP_OPEN_CHAT_DVC = RECV_OTHER_MSG + 2;
-const int OP_REFRESH_LIST_DVC = RECV_OTHER_MSG + 4; // refresh user list ?
+const int OP_REFRESH_LIST_DVC = RECV_OTHER_MSG + 4; // sync user list ?
 const int OP_SNS_CHECK_UNREAD_DVC = RECV_OTHER_MSG + 7; //
 const int OP_SNS_SELF_ACTION_DVC = RECV_OTHER_MSG + 9; // CHECK_SNS_UPDATE, DELETE MSG
-const int OP_REFRESH_MSG_DVC = RECV_OTHER_MSG + 11;
+const int OP_REFRESH_MSG_DVC = RECV_OTHER_MSG + 11; // HandOff with server, always when refresh
 
 
 const int ADD_MEMBER_CHATROOM = 100;
@@ -137,7 +137,7 @@ const int GET_SNS_NEXT = 1501;
 const int GET_USER_LIST = 5000;
 const int GET_CHATROOM_INFO = 5050;
 const int GET_CHATROOM_MEMBER = 5010;
-const int CHATROOM_MEMBER_NICK = 5020;
+// const int GET_CHATROOM_MEMBER_NICK = 5020;
 
 const int CHECK_LOGIN = 6500;
 const int CHECK_SELF_INFO = 6501;
@@ -148,7 +148,7 @@ const int EXEC_SQL = 7500;
 
 const int ENABLE_WECHAT_LOG = 10098;
 const int DISABLE_WECHAT_LOG = 10099;
-const int DESTROY_ALL = 10100;
+// const int DESTROY_ALL = 10100;
 
 struct TableInfo {
   char *name;

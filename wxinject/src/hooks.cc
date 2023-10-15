@@ -270,7 +270,7 @@ namespace wxhelper {
             if (type == 3) {
                 std::string img = Utils::ReadSKBuiltinBuffer(*(INT64 *) (param2 + 0x40));
                 SPDLOG_INFO("encode size:{}", img.size());
-            } else if (type == 51 && ctnt.compare(0, 14, "<msg>\n<op id='") == 0) {
+            } else if (type == 51 && ctnt.compare(0, 12, "<msg>\n<op id") == 0) {
                 std::string num;
                 for (int i = 14; i < 16; i++) {
                     if (isdigit(ctnt[i])) {
@@ -312,7 +312,7 @@ namespace wxhelper {
             nlohmann::json res = {{"code", 200},
                                   {"msg",  "WebSocket server is started"},
                                   {"type", common::RECV_SERVER_HINT},
-                                  {"data", "This message is from WebSocket server"}};
+                                  {"data", "This message is from WxInject server"}};
             std::string jstr = res.dump();
             mg_ws_send(c, jstr.c_str(), jstr.length(), WEBSOCKET_OP_TEXT);
             if (kMsgWsHookFlag) {
