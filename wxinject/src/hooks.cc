@@ -1,10 +1,11 @@
 ﻿
 #include "pch.h"
+#include <WS2tcpip.h>
 #include "hooks.h"
 #include "thread_pool.h"
 #include "wechat_function.h"
-#include <WS2tcpip.h>
 #include "base64.h"
+#include "tinyxml2.h"
 #include "http_client.h"
 
 namespace offset = wxhelper::V3_9_5_81::offset;
@@ -252,7 +253,7 @@ namespace wxhelper {
 
         void HandleWsSyncMsg(INT64 param1, INT64 param2, INT64 param3) {
             nlohmann::json msg;
-            std::string ctnt;
+            std::string user_nt, ctnt;
 
             msg["pid"] = GetCurrentProcessId();
             msg["fromUser"] = Utils::ReadSKBuiltinString(*(INT64 *) (param2 + 0x18));
@@ -278,6 +279,39 @@ namespace wxhelper {
                     }
                 }
                 msg["type"] = std::stoi(num) + 10002;
+            } else if (type == 49) {
+                std::string classify = ctnt.substr(0, 300);
+                std::string num;
+                int result = (int) classify.find(" <type>");
+                if (result != std::string::npos) {
+                    for (int i = result + 7; i < result + 9; i++) {
+                        if (isdigit(classify[i])) {
+                            num.push_back(classify[i]);
+                        }
+                    }
+                    msg["type"] = std::stoi(num);
+                } else {
+                    result = (int) classify.find("\t<type>");
+                    if (result != std::string::npos) {
+                        for (int i = result + 7; i < result + 9; i++) {
+                            if (isdigit(classify[i])) {
+                                num.push_back(classify[i]);
+                            }
+                        }
+                        int trans = std::stoi(num);
+                        switch (trans) {
+                            case 3:
+                                msg["type"] = 53;
+                                break;
+                            case 51:
+                                msg["type"] = 52;
+                                break;
+                            default:
+                                msg["type"] = trans;
+                                break;
+                        }
+                    }
+                }
             }
             std::string jstr = msg.dump();
             mg_ws_send(connection, jstr.c_str(), jstr.length(), WEBSOCKET_OP_TEXT);
