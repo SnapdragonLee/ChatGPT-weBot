@@ -12,14 +12,13 @@ class Processor(threading.Thread):
 
     def __init__(self, que):
         super(Processor, self).__init__()
-        self.que : queue.Queue = que
+        self.que: queue.Queue = que
         self.daemon = True
         self.start()
 
     def run(self):
         while True:
             item = self.que.get()
-            
+
             item.play()
             del item
-

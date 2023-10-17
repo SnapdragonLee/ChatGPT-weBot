@@ -8,7 +8,7 @@ import random
 import websocket
 
 from shared.shared import *
-from apibase.ChatGPTAPI import ChatbotError
+from services.ChatGPTAPI import ChatbotError
 from .send import send_txt_msg, send_pic_msg
 
 global_dict = dict()
@@ -75,7 +75,7 @@ class ChatTask:
         if self.is_citation:
             self.reply = (self.bot.prev_question[-1] if self.type == "rg" else (
                 "用150字内总结全部对话" if self.type == "z" else self.prompt)) + "\n- - - - - - - - - -\n" + self.reply.strip()
-        self.ws.send(send_txt_msg(text_string=self.reply.strip(), wx_id=self.room_id if self.is_room else self.wx_id))
+        self.ws.send(send_txt_msg(self.room_id if self.is_room else self.wx_id, self.reply.strip()))
 
 
 class NormalTask:
@@ -94,7 +94,7 @@ class NormalTask:
 
         if self.is_citation:
             self.reply = self.prompt + "\n- - - - - - - - - -\n" + self.reply.strip()
-        self.ws.send(send_txt_msg(text_string=self.reply.strip(), wx_id=self.room_id if self.is_room else self.wx_id))
+        self.ws.send(send_txt_msg(self.room_id if self.is_room else self.wx_id, self.reply.strip()))
 
 
 class ImgTask:
@@ -129,7 +129,7 @@ class ImgTask:
             if self.times < 5:
                 # raise
                 err = ChatbotError("ConnectionError", "Public API of Stable Diffusion V2.1 is busy, try it later", -2)
-                send_txt_msg(text_string=err.__str__(), wx_id=self.room_id if self.is_room else self.wx_id)
+                send_txt_msg(self.room_id if self.is_room else self.wx_id, err.__str__())
             else:
                 self.times += 1
                 img_ws.send(json.dumps(self.wssRq))
@@ -147,15 +147,15 @@ class ImgTask:
         elif msg["msg"] == "process_completed":
             for item in msg["output"]["data"][0]:
                 source_str = base64.urlsafe_b64decode(item[23:])
-                filename = self.wx_id + "_" + self.room_id + "_" + getid() + ".jpg"
+                filename = self.wx_id + "_" + self.room_id + "_" + get_time() + ".jpg"
                 if not os.path.exists(".cache/"):
                     os.makedirs(cache_dir)
                 with open(cache_dir + filename, "wb") as file_object:
                     file_object.write(source_str)
                 file_object.close()
 
-                self.ws.send(send_pic_msg(wx_id=self.room_id if self.is_room else self.wx_id,
-                                          content=os.path.join(os.path.abspath(cache_dir), filename)))
+                self.ws.send(send_pic_msg(self.room_id if self.is_room else self.wx_id,
+                                          os.path.join(os.path.abspath(cache_dir), filename)))
                 time.sleep(1.0)
                 if isCached:
                     print("Image cached! Name: " + cache_dir + filename)
@@ -165,7 +165,7 @@ class ImgTask:
     def on_error(self, img_ws, error):
         print(error)
 
-    def on_close(self, img_ws):
+    def on_close(self, img_ws, close_status_code, close_msg):
         print("Stable Diffusion V" + self.version + " arts are done!")
 
     def play(self):

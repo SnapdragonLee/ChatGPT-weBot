@@ -3,57 +3,54 @@
 from shared.shared import *
 
 
-def get_chatroom_memberlist():
+def get_self_login():
     qs = {
-        "id": getid(),
-        "type": CHATROOM_MEMBER,
-        "wxid": "",
-        "roomid": "",
-        "content": "",
-        "nickname": "",
-        "ext": ""
+        'type': CHECK_LOGIN
     }
-    s = json.dumps(qs)
-    return s
+    return json.dumps(qs)
 
 
-def get_chat_nick_p(wx_id, room_id):
+def get_self_info():
     qs = {
-        "id": getid(),
-        "type": CHATROOM_MEMBER_NICK,
-        "wxid": wx_id,
-        "roomid": room_id,
-        "content": "",
-        "nickname": "",
-        "ext": ""
+        'type': CHECK_SELF_INFO
     }
-    s = json.dumps(qs)
-    return s
+    return json.dumps(qs)
 
 
-def get_personal_info():
+def get_personal_info(wx_id):
     qs = {
-        "id": getid(),
-        "type": PERSONAL_INFO,
-        "wxid": "ROOT",
-        "roomid": "",
-        "content": "",
-        "nickname": "",
-        "ext": ""
+
+        'type': CHECK_PERSON_INFO,
+        'wxid': wx_id,
     }
-    s = json.dumps(qs)
-    return s
+    return json.dumps(qs)
 
 
-def get_personal_detail(wx_id):
+def get_db_info():
     qs = {
-        "id": getid(),
-        "type": PERSONAL_DETAIL,
-        "wxid": wx_id,
-        "roomid": "",
-        "content": "",
-        "nickname": "",
-        "ext": ""
+        'type': CHECK_DB_INFO
     }
-    s = json.dumps(qs)
-    return s
+    return json.dumps(qs)
+
+
+def get_chatroom_memberlist(room_id):
+    qs = {
+        'type': GET_CHATROOM_MEMBER,
+        'chatRoomId': room_id
+    }
+    return json.dumps(qs)
+
+
+def get_chatroom_info(room_id):
+    qs = {
+        'type': GET_CHATROOM_INFO,
+        'chatRoomId': room_id
+    }
+    return json.dumps(qs)
+
+
+def get_user_list():
+    qs = {
+        'type': GET_USER_LIST
+    }
+    return json.dumps(qs)
