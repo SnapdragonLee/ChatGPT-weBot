@@ -8,13 +8,13 @@
 
 Using ChatGPT-weBot based on ChatGPT(API key call), Stable Diffusion AI drawing and official WeChat hook interface. [中文文档](./Readme_ZH.md) | English
 
-<div align="center"> <img src="assets/DALL·E  - A robot is working hard to transform, modify, and revolutionize the WeChat software.png" width="50%"> </div>
+<div align="center"> <img src="assets/DALL·E3  - A robot is working hard to transform, modify, and revolutionize the WeChat software.png" width="50%"> </div>
 
 ###### Author
 
 [Snapdragon Lee (github.com)](https://github.com/SnapdragonLee) 
 
-*cover created from [DALL·E2 (openai.com)](https://labs.openai.com/)*
+*cover created from [DALL·E3 (openai.com)](https://labs.openai.com/)*
 
 
 
@@ -29,7 +29,7 @@ Using ChatGPT-weBot based on ChatGPT(API key call), Stable Diffusion AI drawing 
 - [x] Support bot's character setting
 - [x] Set the keywords to wake up the WeChat robot in private
 - [x] Set the keywords to wake up the WeChat robot in the group
-- [x] Support replying *at-message* when mentioning your bot in the group **(have bugs)**
+- [x] Support replying *at-message* when mentioning your bot in the group
 - [x] Get help doc inline
 - [x] Regenerate conversation
 - [x] Rollback conversation
@@ -56,32 +56,29 @@ Using ChatGPT-weBot based on ChatGPT(API key call), Stable Diffusion AI drawing 
 
 1. Install all packages listed in `requirements.txt` , use the command like:
 
-   ```
+   ```bash
    pip install -r ./requirements.txt
    ```
 
-   
-
-2. Download package from Github Releases.
-
-3. Install `WeChat-3.6.0.18.exe` on your computer, **if your version is higher than 3.6.0.18, you can downgrade instantly.** Then get your account online. You can also download zip version of WeChat. **If you wanna dual-call WeChat, modify `./dual-start.bat` file guiding by annotation.**
+   ***Note that v1.2 requires more packages to be installed and upgraded, so please execute this command once after upgrading.***
 
    
 
-4. Monitoring WeChat message by running a server. Here are two methods to achieve this, **please *choose 1 method*** :
+2. Download package from Github Releases. (You can download it step by step when they are mentioned)
 
-   - Using injector named `DLLinjector_V1.0.3.exe`, then choose file named `3.6.0.18-0.0.0.008.dll` to inject.
-
-     ![image-20230221044543472](assets/image-20230221044543472.png)
-
-     
-
-   - Running `funtool_3.6.0.18-1.0.0013.exe` , and press `Start` .
-
-     ![image-20230221044609319](assets/image-20230221044609319.png)
+3. Install `WeChat-3.9.5.81.exe` on your computer, **if your version is higher than 3.9.5.81, you can downgrade instantly, or install seperately in other directory**. Afterwards, please **start it as an administrator** and log in. **If you want to dual-open WeChat, you need to install two different versions and modify `./dual-start.bat` according to the comments **, the subsequent steps are slightly different, please continue to read [here](. /doc/Dual_Start.md).
 
    
 
+4. Monitoring WeChat message by running a server. It has been modified to 1 solution after version V1.2:
+
+   ```bash
+   >  cd .\wxinject\bin\
+   >  .\injector.exe -n WeChat.exe -i .\wxinject.dll
+   ```
+   
+   
+   
 5. The last step is fill json files listed in `.config/` . 
 
    - In `api_config.json`, you need to fill in your own parameter settings for API calls. If you don’t know the specific parameters, you only need to fill in the "api_key" and optional "proxy" items.
@@ -91,16 +88,6 @@ Using ChatGPT-weBot based on ChatGPT(API key call), Stable Diffusion AI drawing 
    - In `config.json` ,  you need to configure your custom options based on your preferences.
 
    - In `sys_character.json`, you can customize the character the bot needs to play, and use the command to activate when chatting.
-
-   - **(Temporary deprecated)** In `rev_config.json` , you need to fill your ChatGPT login information by *choosing 1 method*: 
-
-     - Email/Password **(Not supported for Google/Microsoft accounts)**
-
-     - session_token **(supported for Google/Microsoft accounts)**
-
-       > 1. Go to [`chat.openai.com/chat`](https://chat.openai.com/chat) and log in or sign up.
-       > 2. Press `F12` to open dev tools.
-       > 3. Copy cookies as `__Secure-next-auth.session-token` .
 
      
 
@@ -128,7 +115,7 @@ Using ChatGPT-weBot based on ChatGPT(API key call), Stable Diffusion AI drawing 
 
 4. Have any preview images related to functionality? Yes, go to -> [Preview](./doc/Preview.md)
 
-5. Wanna buy me coffee? Thank you, please don't spend too much money.
+5. Wanna buy me coffee? Thank you, qrcode is as follows.
 
    ![image-20230321150123666](assets/image-20230321150123666.png)
 
@@ -150,6 +137,10 @@ Using ChatGPT-weBot based on ChatGPT(API key call), Stable Diffusion AI drawing 
 
 ## Log
 
+- 2023.10.18 Version v1.2 is released, with new SDK and new WeChat version.
+- 2023.10.17 Complete the Python ws_client, update the source code to support the new SDK, and prepare for  main architecture upgrades
+- 2023.10.15 A large number of APIs are added and type-testing is conducted
+- 2023.10.10 Build and improve the SDKs and support the ws client
 - 2023.3.24 Exception handler updates and other pull requests from [rogue-shadowdancer](https://github.com/rogue-shadowdancer) and [wbbeyourself](https://github.com/wbbeyourself)
 - 2023.3.23 Fix bugs for Stable Diffusion and others, released v1.01 version
 - 2023.3.21 Add plenty of new features, fixed bugs, released v1.00 version

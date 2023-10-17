@@ -97,14 +97,6 @@
 
 ------
 
-###### rev_config.json
-
-Temporarily deprecated.
-
-
-
-------
-
 ###### server_config.json
 
 ```json

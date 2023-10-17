@@ -97,14 +97,6 @@
 
 ------
 
-###### rev_config.json
-
-暂时弃用，无需设置
-
-
-
-------
-
 ###### server_config.json
 
 ```json
