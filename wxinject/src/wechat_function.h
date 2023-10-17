@@ -83,11 +83,18 @@ typedef int(__cdecl* sqlite3_finalize)(UINT64* pStmt);
 const int RECV_SERVER_HINT = 0;
 const int RECV_TXT_MSG = 1;
 const int RECV_PIC_MSG = 3;
+const int RECV_GZH_MSG = 5;
 const int RECV_SNS_MSG = 9;
+const int RECV_HISTORY_MSG = 19;
+const int RECV_APP_MSG = 33;
 const int RECV_FRIEND_REQUEST = 37;
 const int RECV_STICKER_MSG = 47;
-const int RECV_XML_MSG = 49; // TXT_CITE, FILE, GZH
+const int RECV_XML_MSG = 49; // FILE
 const int RECV_DVC_MSG = 51; // Type from DVC below this section
+const int RECV_VIDEO_MSG = 52;
+const int RECV_MUSIC_MSG = 53;
+const int RECV_CITE_MSG = 57;
+const int RECV_APPAUDIO_MSG = 92;
 // const int HEART_BEAT = 5005;
 
 const int RECV_HOOK_SNS = 50;
@@ -97,9 +104,10 @@ const int RECV_OTHER_MSG = 10002; // REVOKE, PAT,
 const int OP_READ_MSG_WHILE_OPEN_DVC = RECV_OTHER_MSG + 1;
 const int OP_OPEN_CHAT_DVC = RECV_OTHER_MSG + 2;
 const int OP_REFRESH_LIST_DVC = RECV_OTHER_MSG + 4; // sync user list ?
-const int OP_SNS_CHECK_UNREAD_DVC = RECV_OTHER_MSG + 7; //
+const int OP_SNS_CHECK_UNREAD_DVC = RECV_OTHER_MSG + 7; // Server refresh SNS automatically
 const int OP_SNS_SELF_ACTION_DVC = RECV_OTHER_MSG + 9; // CHECK_SNS_UPDATE, DELETE MSG
 const int OP_REFRESH_MSG_DVC = RECV_OTHER_MSG + 11; // HandOff with server, always when refresh
+const int OP_DELETE_CHATROOM_MSG_DVC = RECV_OTHER_MSG + 16;  // Delete all messages in 1 chat
 
 
 const int ADD_MEMBER_CHATROOM = 100;
