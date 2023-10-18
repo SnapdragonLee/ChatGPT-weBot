@@ -1,1 +1,10 @@
-*.cc linguist-language=Python
+*.c linguist-detectable=false
+*.c linguist-documentation=false
+*.cc linguist-detectable=false
+*.cc linguist-documentation=false
+*.h linguist-detectable=false
+*.h linguist-documentation=false
+wxinject/src/wechat_function.h linguist-detectable=true
+wxinject/src/wechat_function.h linguist-language=C++
+*.cpp linguist-detectable=false
+*.cpp linguist-documentation=false
