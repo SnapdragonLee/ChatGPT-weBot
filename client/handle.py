@@ -19,27 +19,27 @@ def handle_response(ws_t, j: json):
         RECV_SERVER_HINT: print,
         RECV_TXT_MSG: handle_recv_txt_msg,
         RECV_PIC_MSG: handle_recv_pic_msg,
-        RECV_GZH_MSG: print,
+        # RECV_GZH_MSG: print,
         RECV_SNS_MSG: print,
         RECV_HISTORY_MSG: print,
         RECV_APP_MSG: print,
         RECV_FRIEND_REQUEST: print,
-        RECV_STICKER_MSG: print,
+        # RECV_STICKER_MSG: print,
         RECV_XML_MSG: handle_recv_xml_txt,
-        RECV_DVC_MSG: print,
+        # RECV_DVC_MSG: print,
         RECV_VIDEO_MSG: print,
         RECV_MUSIC_MSG: print,
         RECV_CITE_MSG: print,
         RECV_APPAUDIO_MSG: print,
         RECV_HOOK_SNS: print,
         RECV_OTHER_MSG: print,
-        OP_READ_MSG_WHILE_OPEN_DVC: print,
-        OP_OPEN_CHAT_DVC: print,
-        OP_REFRESH_LIST_DVC: print,
-        OP_SNS_CHECK_UNREAD_DVC: print,
-        OP_SNS_SELF_ACTION_DVC: print,
-        OP_REFRESH_MSG_DVC: print,
-        OP_DELETE_CHATROOM_MSG_DVC: print,
+        # OP_READ_MSG_WHILE_OPEN_DVC: print,
+        # OP_OPEN_CHAT_DVC: print,
+        # OP_REFRESH_LIST_DVC: print,
+        # OP_SNS_CHECK_UNREAD_DVC: print,
+        # OP_SNS_SELF_ACTION_DVC: print,
+        # OP_REFRESH_MSG_DVC: print,
+        # OP_DELETE_CHATROOM_MSG_DVC: print,
         ADD_MEMBER_CHATROOM: print,
         DEL_MEMBER_CHATROOM: print,
         INVITE_MEMBER_CHATROOM: print,
@@ -77,8 +77,9 @@ def handle_response(ws_t, j: json):
         ENABLE_WECHAT_LOG: print,
         DISABLE_WECHAT_LOG: print
     }
-
-    action.get(resp_type, print)(j)
+    func = action.get(resp_type)
+    if func is not None:
+        func(j)
 
 
 def handle_nick(j):
@@ -114,8 +115,6 @@ def handle_wxuser_list(j):
 
 
 def handle_recv_txt_msg(j):
-    print(j)
-
     if j['fromUser'] == my_info.wx_id:
         wx_id = j['toUser']
     else:
@@ -138,6 +137,11 @@ def handle_recv_txt_msg(j):
             content = content[pos + 2:].lstrip()
         else:
             wx_id = my_info.wx_id
+
+    print(content +
+          '  From: ' + j['fromUser'] +
+          '  To: ' + j['toUser'] +
+          '  \'type\': ' + str(j['type']))
 
     chatbot = global_dict.get((wx_id, room_id))
 
@@ -245,8 +249,9 @@ def handle_recv_xml_txt(j):
 
 def handle_self_info(j):
     print(j)
-    data = j["data"]
+    data = j['data']
 
     global my_info
-    my_info = Selfinfo(data["wxid"], data["name"], data["account"], data["currentDataPath"], data["dataSavePath"],
-                       data["dbKey"])
+    my_info = Selfinfo(data['wxid'], data['name'], data['account'],
+                       data['currentDataPath'], data['dataSavePath'],
+                       data['dbKey'])
