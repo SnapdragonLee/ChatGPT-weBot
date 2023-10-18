@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from basic.get import *
 from basic.task import *
 from multithread.threads import *
 from .handle import handle_response
@@ -9,7 +10,7 @@ global_thread = []
 
 
 def on_open(ws):
-    # ws.send(send_pic_msg(wx_id='filehelper', room_id='', content=''))
+    ws.send(get_self_info())
     # ws.send(send_wxuser_list())
     # ws.send(get_chatroom_memberlist())
 
@@ -45,7 +46,7 @@ def on_error(ws, error):
 
 def on_close(ws, close_status_code, close_msg):
     for key, value in global_dict.items():
-        print('clear conversation:' + key)
+        print('clear conversation:' + str(key))
         del value
 
     print(f'WebSocket closed with status code: 0')

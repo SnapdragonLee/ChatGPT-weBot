@@ -2,9 +2,11 @@ import re
 
 from basic.task import *
 from multithread.threads import *
-from services.ChatGPTAPI import Chatbot
+from services.model import Selfinfo
+from services.chat.ChatGPTAPI import Chatbot
 
-global ws
+ws: websocket.WebSocketApp
+my_info: Selfinfo
 
 
 def handle_response(ws_t, j: json):
@@ -68,7 +70,7 @@ def handle_response(ws_t, j: json):
         GET_CHATROOM_INFO: print,
         GET_CHATROOM_MEMBER: hanle_memberlist,
         CHECK_LOGIN: print,
-        CHECK_SELF_INFO: print,
+        CHECK_SELF_INFO: handle_self_info,
         CHECK_DB_INFO: print,
         CHECK_PERSON_INFO: print,
         EXEC_SQL: print,
@@ -114,7 +116,10 @@ def handle_wxuser_list(j):
 def handle_recv_txt_msg(j):
     print(j)
 
-    wx_id = j['fromUser']
+    if j['fromUser'] == my_info.wx_id:
+        wx_id = j['toUser']
+    else:
+        wx_id = j['fromUser']
     room_id = ''
     content: str = j['content'].strip()
 
@@ -123,18 +128,16 @@ def handle_recv_txt_msg(j):
     chatbot: Chatbot
 
     if len(wx_id) < 9 or wx_id[-9] != '@':
-        if len(j['toUser']) == 20:
-            is_room = True
-            room_id = j['toUser']
-        else:
-            is_room = False
-
+        is_room = False
     else:
         is_room = True
         room_id = wx_id
         pos = content.find(':\n', 0)
-        wx_id = content[:pos]
-        content = content[pos + 2:].lstrip()
+        if pos != -1:
+            wx_id = content[:pos]
+            content = content[pos + 2:].lstrip()
+        else:
+            wx_id = my_info.wx_id
 
     chatbot = global_dict.get((wx_id, room_id))
 
@@ -238,3 +241,12 @@ def handle_recv_pic_msg(j):
 
 def handle_recv_xml_txt(j):
     print(j)
+
+
+def handle_self_info(j):
+    print(j)
+    data = j["data"]
+
+    global my_info
+    my_info = Selfinfo(data["wxid"], data["name"], data["account"], data["currentDataPath"], data["dataSavePath"],
+                       data["dbKey"])

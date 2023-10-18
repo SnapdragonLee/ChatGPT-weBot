@@ -8,7 +8,7 @@ import random
 import websocket
 
 from shared.shared import *
-from services.ChatGPTAPI import ChatbotError
+from services.chat.ChatGPTAPI import ChatbotError
 from .send import send_txt_msg, send_pic_msg
 
 global_dict = dict()
@@ -73,7 +73,7 @@ class ChatTask:
 
         print("reply: " + self.reply)
         if self.is_citation:
-            self.reply = (self.bot.prev_question[-1] if self.type == "rg" else (
+            self.reply = (self.bot.prev_question[-1][0] if self.type == "rg" else (
                 "用150字内总结全部对话" if self.type == "z" else self.prompt)) + "\n- - - - - - - - - -\n" + self.reply.strip()
         self.ws.send(send_txt_msg(self.room_id if self.is_room else self.wx_id, self.reply.strip()))
 
