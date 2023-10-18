@@ -5,10 +5,12 @@ import os.path
 import string
 import random
 
+import requests
 import websocket
 
 from shared.shared import *
 from services.chat.ChatGPTAPI import ChatbotError
+from services.draw.StableDiffusionXL import ImageGenerator
 from .send import send_txt_msg, send_pic_msg
 
 global_dict = dict()
@@ -117,6 +119,8 @@ class ImgTask:
             self.img_host = "wss://" + API_URL_v21
         elif version == "1.5":
             self.img_host = "wss://" + API_URL_v15
+        elif version == "SDXL":
+            self.struct = ImageGenerator()
 
     def on_open(self, img_ws):
         self.times += 1
@@ -169,11 +173,25 @@ class ImgTask:
         print("Stable Diffusion V" + self.version + " arts are done!")
 
     def play(self):
-        self.img_ws = websocket.WebSocketApp(self.img_host,
-                                             on_open=self.on_open,
-                                             on_message=self.on_message,
-                                             on_error=self.on_error,
-                                             on_close=self.on_close,
-                                             )
-        self.img_ws.keep_running = False
-        self.img_ws.run_forever()
+        if self.version == "SDXL":
+            addr = self.struct.gen_image(self.prompt[0])
+            dw_ss = requests.session()
+            for item in addr:
+                source_str = dw_ss.get(item).content
+                filename = self.wx_id + "_" + self.room_id + "_" + get_time() + ".png"
+                if not os.path.exists(".cache/"):
+                    os.makedirs(cache_dir)
+                with open(cache_dir + filename, "wb") as file_:
+                    file_.write(source_str)
+                file_.close()
+                self.ws.send(send_pic_msg(self.room_id if self.is_room else self.wx_id,
+                                          os.path.join(os.path.abspath(cache_dir), filename)))
+        else:
+            self.img_ws = websocket.WebSocketApp(self.img_host,
+                                                 on_open=self.on_open,
+                                                 on_message=self.on_message,
+                                                 on_error=self.on_error,
+                                                 on_close=self.on_close,
+                                                 )
+            self.img_ws.keep_running = False
+            self.img_ws.run_forever()

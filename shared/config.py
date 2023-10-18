@@ -43,6 +43,7 @@ characterKey = config['characterKey']
 conclusionKey = config['conclusionKey']
 
 stableDiffRly = config['stableDiffRly']
+stableDiffVer = config['stableDiffVer']
 groupImgKey = config['groupImgKey']
 privateImgKey = config['privateImgKey']
 negativePromptKey = config['negativePromptKey']

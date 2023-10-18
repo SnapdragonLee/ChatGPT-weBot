@@ -217,7 +217,7 @@ def handle_recv_txt_msg(j):
             content = re.sub('^' + (groupImgKey if is_room else privateImgKey), '', content, 1).lstrip()
             prompt_list = re.split(negativePromptKey, content)
 
-            ig = ImgTask(ws, prompt_list, wx_id, room_id, is_room, '2.1')
+            ig = ImgTask(ws, prompt_list, wx_id, room_id, is_room, stableDiffVer)
             img_que.put(ig)
 
         elif (content.startswith(privateChatKey) and not is_room) or (content.startswith(groupChatKey) and is_room):
