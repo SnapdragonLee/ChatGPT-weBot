@@ -174,7 +174,7 @@ class ImgTask:
 
     def play(self):
         if self.version == "SDXL":
-            addr = self.struct.gen_image(self.prompt[0])
+            addr = self.struct.gen_image(self.prompt[0], "" if len(self.prompt) == 1 else self.prompt[1])
             dw_ss = requests.session()
             for item in addr:
                 source_str = dw_ss.get(item).content

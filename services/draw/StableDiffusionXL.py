@@ -1,6 +1,6 @@
 import json
 import time
-
+import random
 import requests
 
 
@@ -20,9 +20,20 @@ class ImageGenerator:
             'Sec-Fetch-Site': 'same-origin',
             'TE': 'trailers'
         }
+        self.cookie = {
+            'replicate_anonymous_id': f"{self.r_hex(8)}-{self.r_hex(4)}-"
+                                      f"{self.r_hex(4)}-{self.r_hex(4)}-{self.r_hex(12)}"
+        }
         self.session = requests.session()
 
-    def gen_image(self, prompt, count=4, width=1024, height=1024, refine="expert_ensemble_refiner", scheduler="DDIM",
+    @staticmethod
+    def r_hex(length: int):
+        hex_chars = "0123456789abcdef"
+        random_hex = "".join(random.choice(hex_chars) for _ in range(length))
+        return random_hex
+
+    def gen_image(self, prompt, negative_prompt='',
+                  count=4, width=1024, height=1024, refine="expert_ensemble_refiner", scheduler="DDIM",
                   guidance_scale=7.5, high_noise_frac=0.8, prompt_strength=0.8, num_inference_steps=50):
         try:
             # Check if count is within the valid range
@@ -63,6 +74,7 @@ class ImageGenerator:
                     "width": width,
                     "height": height,
                     "prompt": prompt,
+                    "negative_prompt": negative_prompt,
                     "refine": refine,
                     "scheduler": scheduler,
                     "num_outputs": count,
@@ -73,7 +85,7 @@ class ImageGenerator:
                 }
             })
 
-            response = self.session.post(url, headers=self.headers, data=payload)
+            response = self.session.post(url, headers=self.headers, cookies=self.cookie, data=payload)
 
             response.raise_for_status()
 
