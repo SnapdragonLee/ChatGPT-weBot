@@ -9,7 +9,7 @@ import requests
 import websocket
 
 from shared.shared import *
-from services.chat.ChatGPTAPI import ChatbotError
+from services.chat.ChatGPTAPI import BotError
 from services.draw.StableDiffusionXL import ImageGenerator
 from .send import send_txt_msg, send_pic_msg
 
@@ -46,7 +46,7 @@ class ChatTask:
                 print("ask:" + self.bot.prev_question[-1][-1])
                 try:
                     self.reply += self.bot.ask(prompt=None)
-                except ChatbotError as CE:
+                except BotError as CE:
                     self.reply += CE.__str__()
 
         elif self.type == "z":
@@ -61,7 +61,7 @@ class ChatTask:
             try:
                 self.bot.set_system_character(role=self.prompt)
                 self.reply += f"设定角色 {self.prompt} 成功"
-            except ChatbotError as CE:
+            except BotError as CE:
                 self.reply += CE.__str__()
                 time.sleep(0.5)
 
@@ -70,7 +70,7 @@ class ChatTask:
             try:
                 self.reply += self.bot.ask(prompt=self.prompt, access_internet=self.access,
                                            access_result=internetResult)
-            except ChatbotError as CE:
+            except BotError as CE:
                 self.reply += CE.__str__()
 
         print("reply: " + self.reply)
@@ -130,10 +130,11 @@ class ImgTask:
         msg = json.loads(message)
 
         if msg["msg"] == "queue_full":
-            if self.times < 5:
+            if self.times > 5:
                 # raise
-                err = ChatbotError("ConnectionError", "Public API of Stable Diffusion V2.1 is busy, try it later", -2)
-                send_txt_msg(self.room_id if self.is_room else self.wx_id, err.__str__())
+                err = BotError("ConnectionError", "Public API of Stable Diffusion V2.1 is busy, try it later", -2)
+                self.ws.send(send_txt_msg(self.room_id if self.is_room else self.wx_id, err.__str__()))
+                img_ws.close()
             else:
                 self.times += 1
                 img_ws.send(json.dumps(self.wssRq))
@@ -175,6 +176,10 @@ class ImgTask:
     def play(self):
         if self.version == "SDXL":
             addr = self.struct.gen_image(self.prompt[0], "" if len(self.prompt) == 1 else self.prompt[1])
+            if not isinstance(addr, list):
+                self.ws.send(send_txt_msg(self.room_id if self.is_room else self.wx_id, addr.__str__()))
+                return
+
             dw_ss = requests.session()
             for item in addr:
                 source_str = dw_ss.get(item).content
@@ -186,6 +191,11 @@ class ImgTask:
                 file_.close()
                 self.ws.send(send_pic_msg(self.room_id if self.is_room else self.wx_id,
                                           os.path.join(os.path.abspath(cache_dir), filename)))
+                time.sleep(1.0)
+                if isCached:
+                    print("Image cached! Name: " + cache_dir + filename)
+                else:
+                    os.remove(cache_dir + filename)
         else:
             self.img_ws = websocket.WebSocketApp(self.img_host,
                                                  on_open=self.on_open,

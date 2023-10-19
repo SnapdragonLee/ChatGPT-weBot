@@ -3,6 +3,7 @@ import time
 import random
 import requests
 
+from services.model import BotError
 
 class ImageGenerator:
     def __init__(self):
@@ -96,20 +97,20 @@ class ImageGenerator:
             return image_url
 
         except ValueError as e:
-            print(f"Error: {e}")
-            return None
+            err = BotError("SDXL_Error", e.__str__(), -1)
+            return err
 
         except requests.exceptions.RequestException as e:
-            print(f"Error occurred while making the request: {e}")
-            return None
+            err = BotError("SDXL_Error", f'Error occurred while making the request:{e.__str__()}', -3)
+            return err
 
         except KeyError as e:
-            print(f"Error occurred while processing the response: {e}")
-            return None
+            err = BotError("SDXL_Error", f"Error occurred while processing the response: {e.__str__()}", -3)
+            return err
 
         except Exception as e:
-            print(f"An unexpected error occurred: {e}")
-            return None
+            err = BotError("SDXL_Error", f"An unexpected error occurred: {e.__str__()}", -9)
+            return err
 
     def get_image_url(self, uuid):
         url = (f"https://replicate.com/api/models/stability-ai/sdxl/versions/"
@@ -122,6 +123,9 @@ class ImageGenerator:
             if response['prediction']['status'] == "succeeded":
                 flag = True
                 output = response['prediction']['output_files']
+            elif response['prediction']['status'] == "failed":
+                err = BotError("SDXL_Error", response['prediction']['error'], -1)
+                return err
             else:
                 time.sleep(3)
 

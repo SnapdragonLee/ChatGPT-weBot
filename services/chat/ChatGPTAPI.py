@@ -2,28 +2,7 @@ import json
 import requests
 import tiktoken
 
-
-class ChatbotError(Exception):
-    """
-    Base class for exceptions in this module.
-    Error codes:
-    -3: response runtime error
-    -2: API busy error
-    -1: User error
-    0: Unknown error
-    """
-
-    error: str
-    message: str
-    code: int
-
-    def __init__(self, source: str, message: str, code: int = 0) -> None:
-        self.error = source
-        self.message = message
-        self.code = code
-
-    def __str__(self) -> str:
-        return f"{self.error}: {self.message} (code: {self.code})"
+from services.model import BotError
 
 
 class Chatbot:
@@ -68,7 +47,7 @@ class Chatbot:
         f.close()
 
         if role not in sys_char:
-            raise ChatbotError("KeyError", f"{role} isn't in sys_character.json!", -1)
+            raise BotError("KeyError", f"{role} isn't in sys_character.json!", -1)
         else:
             self.system_character = sys_char[role]
             self.conversation[0] = {"role": "system", "content": self.system_character}
@@ -152,10 +131,10 @@ class Chatbot:
                                             timeout=10)
                 except Exception as e:
                     # print(f"【ddg-webapp Exception】: {e}")
-                    raise ChatbotError("ConnectionError", "ddg-webapp API Error", -2)
+                    raise BotError("ConnectionError", "ddg-webapp API Error", -2)
 
                 if response.status_code != 200:
-                    raise ChatbotError("ConnectionError", "Cannot access internet info", response.status_code)
+                    raise BotError("ConnectionError", "Cannot access internet info", response.status_code)
                 else:
                     json_data = json.loads(response.content)
 
@@ -166,7 +145,7 @@ class Chatbot:
                         result += item["body"] + "\n"
                         result += "URL: " + item["href"] + "\n\n"
                 except Exception as e:
-                    raise ChatbotError("Json Parse Error", e.__str__(), -1)
+                    raise BotError("Json Parse Error", e.__str__(), -1)
                     # print(f"parse json_data error: {e}")
 
                 result = result.strip()
@@ -209,12 +188,12 @@ class Chatbot:
                 )
             except Exception as e:
                 # print(f"ChatGPT Exception: {e}")
-                raise ChatbotError("ConnectionError", f'ChatGPT API error {e.__str__()}', -3)
+                raise BotError("ConnectionError", f'ChatGPT API error {e.__str__()}', -3)
 
             times -= 1
 
             if times == 0 and response.status_code != 200:
-                raise ChatbotError("ConnectionError", response.text, response.status_code)
+                raise BotError("ConnectionError", response.text, response.status_code)
             else:
                 content = json.loads(response.content)
                 # print(content)
@@ -260,7 +239,7 @@ class Chatbot:
         """
         try:
             self.ask(prompt="用150字内总结全部对话")
-        except ChatbotError as CE:
+        except BotError as CE:
             return CE.__str__()
         conclude = self.conversation.pop()
         self.reset()
