@@ -1053,6 +1053,7 @@ INT64 Manager::ForwardPublicMsgByMsgId(const std::wstring &wxid,
   std::wstring ws_nickname = Utils::UTF8ToWstring(s_nickname);
   success = ForwardPublicMsg(wxid, ws_title, ws_url, ws_thumb_url, ws_user_name,
                              ws_nickname, ws_digest);
+  delete[] dst;
   return success;
 }
 
