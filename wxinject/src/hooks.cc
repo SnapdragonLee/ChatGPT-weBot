@@ -152,6 +152,8 @@ namespace wxhelper {
                 bool add = ThreadPool::GetInstance().AddWork(SendMsgCallback, inner_msg);
                 SPDLOG_INFO("add msg work:{}", add);
             }
+            delete[] inner_msg->buffer;
+            delete inner_msg;
             R_DoAddMsg(param1, param2, param3);
         }
 
@@ -185,6 +187,9 @@ namespace wxhelper {
                 bool add = ThreadPool::GetInstance().AddWork(SendMsgCallback, inner_msg);
                 SPDLOG_INFO("hook sns add msg work:{}", add);
             }
+
+            delete[] inner_msg->buffer;
+            delete inner_msg;
             R_OnSnsTimeLineSceneFinish(param1, param2, param3);
         }
 
@@ -271,6 +276,7 @@ namespace wxhelper {
             if (type == 3) {
                 std::string img = Utils::ReadSKBuiltinBuffer(*(INT64 *) (param2 + 0x40));
                 SPDLOG_INFO("encode size:{}", img.size());
+                msg["base64Img"] = base64_encode(img);
             } else if (type == 51 && ctnt.compare(0, 12, "<msg>\n<op id") == 0) {
                 std::string num;
                 for (int i = 14; i < 16; i++) {
