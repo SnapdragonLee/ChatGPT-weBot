@@ -5,7 +5,7 @@
 #include "thread_pool.h"
 #include "wechat_function.h"
 #include "base64.h"
-#include "tinyxml2.h"
+#include "rapidxml.hpp"
 #include "http_client.h"
 
 namespace offset = wxhelper::V3_9_5_81::offset;
@@ -258,7 +258,7 @@ namespace wxhelper {
 
         void HandleWsSyncMsg(INT64 param1, INT64 param2, INT64 param3) {
             nlohmann::json msg;
-            std::string user_nt, ctnt;
+            std::string ctnt;
 
             msg["pid"] = GetCurrentProcessId();
             msg["fromUser"] = Utils::ReadSKBuiltinString(*(INT64 *) (param2 + 0x18));
@@ -286,36 +286,25 @@ namespace wxhelper {
                 }
                 msg["type"] = std::stoi(num) + 10002;
             } else if (type == 49) {
-                std::string classify = ctnt.substr(0, 300);
-                std::string num;
-                int result = (int) classify.find(" <type>");
-                if (result != std::string::npos) {
-                    for (int i = result + 7; i < result + 9; i++) {
-                        if (isdigit(classify[i])) {
-                            num.push_back(classify[i]);
-                        }
-                    }
-                    msg["type"] = std::stoi(num);
-                } else {
-                    result = (int) classify.find("\t<type>");
-                    if (result != std::string::npos) {
-                        for (int i = result + 7; i < result + 9; i++) {
-                            if (isdigit(classify[i])) {
-                                num.push_back(classify[i]);
-                            }
-                        }
-                        int trans = std::stoi(num);
-                        switch (trans) {
-                            case 3:
-                                msg["type"] = 53;
-                                break;
-                            case 51:
-                                msg["type"] = 52;
-                                break;
-                            default:
-                                msg["type"] = trans;
-                                break;
-                        }
+                int start = (int) ctnt.find('<');
+                rapidxml::xml_document<> doc;
+                doc.parse<0>(const_cast<char *>(ctnt.c_str() + start));  // RapidXML doesn't allow const char* in parse()
+                rapidxml::xml_node<> *msgNode = doc.first_node("msg");
+                rapidxml::xml_node<> *appmsgNode = msgNode->first_node("appmsg");
+
+                const char *title = appmsgNode->first_node("type")->value();
+                if (title != nullptr) {
+                    int trans = std::stoi(title);
+                    switch (trans) {
+                        case 3:
+                            msg["type"] = 53;
+                            break;
+                        case 51:
+                            msg["type"] = 52;
+                            break;
+                        default:
+                            msg["type"] = trans;
+                            break;
                     }
                 }
             }

@@ -6,7 +6,7 @@
 #include "db.h"
 #include "lz4.h"
 #include "base64.h"
-#include "tinyxml2.h"
+#include "rapidxml.hpp"
 
 namespace offset = wxhelper::V3_9_5_81::offset;
 namespace prototype = wxhelper::V3_9_5_81::prototype;
@@ -268,7 +268,7 @@ INT64 Manager::SendImageMsg(const std::wstring& wxid, const std::wstring& image_
   flag[8] = &temp1;
   flag[9] = &temp2;
   flag[1] = reinterpret_cast<UINT64*>(p_chat_msg_temp);
-  
+
   UINT64 p_chat_msg = new_chat_msg(reinterpret_cast<UINT64>(&chat_msg));
   UINT64 send_mgr = mgr();
   send_img(send_mgr, p_chat_msg,
@@ -311,7 +311,7 @@ INT64 Manager::SendFileMsg(const std::wstring& wxid, const std::wstring& file_pa
   func::__SendFile send_file = (func::__SendFile)send_file_addr;
   func::__FreeChatMsg free = (func::__FreeChatMsg)free_chat_msg_addr;
 
- 
+
   char* chat_msg= (char*)HeapAlloc(GetProcessHeap(),0,0x460);
 
   UINT64* temp1 = (UINT64*)HeapAlloc(GetProcessHeap(),0,sizeof(UINT64)*4);
@@ -329,7 +329,7 @@ INT64 Manager::SendFileMsg(const std::wstring& wxid, const std::wstring& file_pa
             reinterpret_cast<UINT64>(file_full_path), 1,
             reinterpret_cast<UINT64>(temp1), 0, reinterpret_cast<UINT64>(temp2),
             0, reinterpret_cast<UINT64>(temp3), 0, 0);
-  free(reinterpret_cast<UINT64>(chat_msg));  
+  free(reinterpret_cast<UINT64>(chat_msg));
   HeapFree(GetProcessHeap(),0,to_user);
   HeapFree(GetProcessHeap(),0,file_full_path);
   HeapFree(GetProcessHeap(),0,temp1);
@@ -508,13 +508,13 @@ INT64 Manager::GetMemberFromChatRoom(const std::wstring &room_id,
 
   UINT64 mgr = get_chat_room_mgr();
   success = get_members(mgr, reinterpret_cast<UINT64>(&chat_room_id), addr);
-  member.chat_room_id = Utils::ReadWstringThenConvert(addr + 0x10);        
-  member.admin = Utils::ReadWstringThenConvert(addr + 0x78);        
-  member.member_nickname = Utils::ReadWstringThenConvert(addr + 0x50);        
-  member.admin_nickname = Utils::ReadWstringThenConvert(addr + 0xA0);        
-  member.member = Utils::ReadWeChatStr(addr + 0x30);   
+  member.chat_room_id = Utils::ReadWstringThenConvert(addr + 0x10);
+  member.admin = Utils::ReadWstringThenConvert(addr + 0x78);
+  member.member_nickname = Utils::ReadWstringThenConvert(addr + 0x50);
+  member.admin_nickname = Utils::ReadWstringThenConvert(addr + 0xA0);
+  member.member = Utils::ReadWeChatStr(addr + 0x30);
   free_chat_room(addr);
-  return success;     
+  return success;
 }
 INT64 Manager::SetTopMsg(ULONG64 msg_id) {
   INT64 success = -1;
@@ -999,44 +999,26 @@ INT64 Manager::ForwardPublicMsgByMsgId(const std::wstring &wxid,
     SPDLOG_INFO("decompress content size :{}", decompress_len);
     return -1;
   }
-  tinyxml2::XMLDocument doc;
-  if (doc.Parse(dst, decompress_len - 1) != 0) {
-    SPDLOG_INFO("tinyxml2 parse error");
-    return -2;
-  }
-  const char *title = doc.FirstChildElement("msg")
-                          ->FirstChildElement("appmsg")
-                          ->FirstChildElement("title")
-                          ->GetText();
-  const char *digest = doc.FirstChildElement("msg")
-                           ->FirstChildElement("appmsg")
-                           ->FirstChildElement("des")
-                           ->GetText();
+  rapidxml::xml_document<> doc;
+  doc.parse<0>(const_cast<char*>(dst));
 
-  const char *url = doc.FirstChildElement("msg")
-                        ->FirstChildElement("appmsg")
-                        ->FirstChildElement("mmreader")
-                        ->FirstChildElement("category")
-                        ->FirstChildElement("item")
-                        ->FirstChildElement("url")
-                        ->GetText();
-  const char *thumb_url = doc.FirstChildElement("msg")
-                              ->FirstChildElement("appmsg")
-                              ->FirstChildElement("thumburl")
-                              ->GetText();
-  const char *user_name = doc.FirstChildElement("msg")
-                              ->FirstChildElement("appmsg")
-                              ->FirstChildElement("mmreader")
-                              ->FirstChildElement("publisher")
-                              ->FirstChildElement("username")
-                              ->GetText();
+  // Accessing the elements
+  rapidxml::xml_node<> *msgNode = doc.first_node("msg");
+  rapidxml::xml_node<> *appmsgNode = msgNode->first_node("appmsg");
 
-  const char *nickname = doc.FirstChildElement("msg")
-                             ->FirstChildElement("appmsg")
-                             ->FirstChildElement("mmreader")
-                             ->FirstChildElement("publisher")
-                             ->FirstChildElement("nickname")
-                             ->GetText();
+  const char *title = appmsgNode->first_node("title")->value();
+  const char *digest = appmsgNode->first_node("des")->value();
+
+  rapidxml::xml_node<> *mmreaderNode = appmsgNode->first_node("mmreader");
+  rapidxml::xml_node<> *categoryNode = mmreaderNode->first_node("category");
+  rapidxml::xml_node<> *itemNode = categoryNode->first_node("item");
+  const char *url = itemNode->first_node("url")->value();
+
+  const char *thumb_url = appmsgNode->first_node("thumburl")->value();
+
+  rapidxml::xml_node<> *publisherNode = mmreaderNode->first_node("publisher");
+  const char *user_name = publisherNode->first_node("username")->value();
+  const char *nickname = publisherNode->first_node("nickname")->value();
 
   std::string s_title(title);
   std::string s_digest(digest);
