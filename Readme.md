@@ -70,7 +70,7 @@ Using ChatGPT-weBot based on ChatGPT(API key call), Stable Diffusion AI drawing 
 
    
 
-4. Monitoring WeChat message by running a server. It has been modified to 1 solution after version V1.2:
+4. Monitoring WeChat message by running a server. It has been modified to 1 solution after version V1.20:
 
    ```bash
    >  cd .\wxinject\bin\
@@ -137,6 +137,7 @@ Using ChatGPT-weBot based on ChatGPT(API key call), Stable Diffusion AI drawing 
 
 ## Log
 
+- 2023.10.23 Version v1.20.2 is released, fix some memory leak and change XML parser.
 - 2023.10.18 Version v1.2 is released, with new SDK and new WeChat version.
 - 2023.10.17 Complete the Python ws_client, update the source code to support the new SDK, and prepare for  main architecture upgrades
 - 2023.10.15 A large number of APIs are added and type-testing is conducted
