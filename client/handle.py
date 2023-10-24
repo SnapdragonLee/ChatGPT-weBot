@@ -31,7 +31,7 @@ def handle_response(ws_t, j: json):
         RECV_MUSIC_MSG: print,
         RECV_CITE_MSG: print,
         RECV_APPAUDIO_MSG: print,
-        RECV_HOOK_SNS: print,
+        RECV_HOOK_SNS: handle_sns_txt,
         RECV_OTHER_MSG: print,
         # OP_READ_MSG_WHILE_OPEN_DVC: print,
         # OP_OPEN_CHAT_DVC: print,
@@ -80,6 +80,14 @@ def handle_response(ws_t, j: json):
     func = action.get(resp_type)
     if func is not None:
         func(j)
+
+
+def handle_sns_txt(j):
+    for item in j['data']:
+        print(item['content'] +
+              '  From: ' + item['senderId'] +
+              '  createTime: ' + item['createTime'] +
+              '  \'type\': ' + str(j['type']))
 
 
 def handle_nick(j):
@@ -154,7 +162,9 @@ def handle_recv_txt_msg(j):
                 b'\xa1\xb9\xe7\x9b\xae\xe5\x9c\xa8 github \xe5\x90\x8c\xe5\x90\x8d\xe5\xbc\x80\xe6\xba\x90\n',
                 'utf-8') + helpKey + ' 查看可用命令帮助\n' + \
                     ((groupImgKey + ' 提问群AI画图机器人(仅英语) ') if is_room else (
-                            privateImgKey + ' 提问AI画图机器人(仅英语) ')) + \
+                            privateImgKey + ' 提问AI画图机器人(仅英语)\n')) + \
+                    ((replicateGroupImgKey + ' 提问LTCST AI画图机器人(仅英语) ') if is_room else (
+                            replicatePrivateImgKey + ' 提问LTCST AI画图机器人(仅英语) ')) + \
                     negativePromptKey + '可选负面提示\n' + \
                     ((groupChatKey + ' 提问群聊天机器人 ') if is_room else (privateChatKey + ' 提问聊天机器人 ')) + \
                     internetKey + '可联网\n' + \
@@ -218,6 +228,14 @@ def handle_recv_txt_msg(j):
             prompt_list = re.split(negativePromptKey, content)
 
             ig = ImgTask(ws, prompt_list, wx_id, room_id, is_room, stableDiffVer)
+            img_que.put(ig)
+
+        elif stableDiffRly and ((content.startswith(replicatePrivateImgKey) and not is_room) or (
+                content.startswith(replicateGroupImgKey) and is_room)):
+            content = re.sub('^' + (replicateGroupImgKey if is_room else replicatePrivateImgKey), '', content, 1).lstrip()
+            prompt_list = re.split(negativePromptKey, content)
+
+            ig = ImgTask(ws, prompt_list, wx_id, room_id, is_room, 'LTCST')
             img_que.put(ig)
 
         elif (content.startswith(privateChatKey) and not is_room) or (content.startswith(groupChatKey) and is_room):

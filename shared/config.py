@@ -46,6 +46,8 @@ stableDiffRly = config['stableDiffRly']
 stableDiffVer = config['stableDiffVer']
 groupImgKey = config['groupImgKey']
 privateImgKey = config['privateImgKey']
+replicateGroupImgKey = config['replicateGroupImgKey']
+replicatePrivateImgKey = config['replicatePrivateImgKey']
 negativePromptKey = config['negativePromptKey']
 isCached = config['isCached']
 
