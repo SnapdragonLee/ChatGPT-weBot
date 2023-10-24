@@ -3,10 +3,13 @@ import time
 import random
 import requests
 
+from .ImageGenerator import ImageGenerator
 from services.model import BotError
 
-class ImageGenerator:
+
+class SDXL(ImageGenerator):
     def __init__(self):
+        super().__init__()
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0',
             'Accept': 'application/json',
@@ -14,28 +17,18 @@ class ImageGenerator:
             'Referer': 'https://replicate.com/stability-ai/sdxl',
             'Content-Type': 'application/json',
             'Origin': 'https://replicate.com',
-            'DNT': '1',
             'Connection': 'keep-alive',
-            'Sec-Fetch-Dest': 'empty',
-            'Sec-Fetch-Mode': 'cors',
-            'Sec-Fetch-Site': 'same-origin',
-            'TE': 'trailers'
         }
-        self.cookie = {
-            'replicate_anonymous_id': f"{self.r_hex(8)}-{self.r_hex(4)}-"
-                                      f"{self.r_hex(4)}-{self.r_hex(4)}-{self.r_hex(12)}"
-        }
-        self.session = requests.session()
 
-    @staticmethod
-    def r_hex(length: int):
-        hex_chars = "0123456789abcdef"
-        random_hex = "".join(random.choice(hex_chars) for _ in range(length))
-        return random_hex
+    def gen_image(self, prompt, count, height, width, *args, **kwargs):
+        negative_prompt = kwargs.get('negative_prompt', '')
+        refine = kwargs.get('refine', 'expert_ensemble_refiner')
+        scheduler = kwargs.get('scheduler', 'DDIM')
+        guidance_scale = kwargs.get('guidance_scale', 7.5)
+        high_noise_frac = kwargs.get('high_noise_frac', 0.8)
+        prompt_strength = kwargs.get('prompt_strength', 0.8)
+        num_inference_steps = kwargs.get('num_inference_steps', 50)
 
-    def gen_image(self, prompt, negative_prompt='',
-                  count=4, width=1024, height=1024, refine="expert_ensemble_refiner", scheduler="DDIM",
-                  guidance_scale=7.5, high_noise_frac=0.8, prompt_strength=0.8, num_inference_steps=50):
         try:
             # Check if count is within the valid range
             if count < 1 or count > 4:

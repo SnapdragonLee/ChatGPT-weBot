@@ -17,6 +17,8 @@
   "stableDiffVer": "SDXL",
   "groupImgKey": "-i",
   "privateImgKey": "-i",
+  "replicateGroupImgKey": "/ir",
+  "replicatePrivateImgKey": "/ir",
   "negativePromptKey": "-n",
   "isCached": true,
 

@@ -10,7 +10,8 @@ import websocket
 
 from shared.shared import *
 from services.chat.ChatGPTAPI import BotError
-from services.draw.StableDiffusionXL import ImageGenerator
+from services.draw.StableDiffusionXL import SDXL
+from services.draw.LatentConsistency import LTCST
 from .send import send_txt_msg, send_pic_msg
 
 global_dict = dict()
@@ -30,53 +31,53 @@ class ChatTask:
         self.reply = ""
 
     def play(self):
-        if self.type == "rs":
+        if self.type == 'rs':
             if self.bot is not None and len(self.bot.conversation) > 1:
                 self.bot.reset()
-                self.reply = "重置完成"
+                self.reply = '重置完成'
             else:
-                self.reply = "您还没有开始第一次对话"
+                self.reply = '您还没有开始第一次对话'
                 time.sleep(0.5)
 
-        elif self.type == "rg":
+        elif self.type == 'rg':
             if self.bot is None or self.bot.question_num == 0:
-                self.reply = "您还没有问过问题"
+                self.reply = '您还没有问过问题'
                 time.sleep(0.5)
             else:
-                print("ask:" + self.bot.prev_question[-1][-1])
+                print('ask:' + self.bot.prev_question[-1][-1])
                 try:
                     self.reply += self.bot.ask(prompt=None)
                 except BotError as CE:
                     self.reply += CE.__str__()
 
-        elif self.type == "z":
+        elif self.type == 'z':
             if self.bot is None or self.bot.question_num < 1:
-                self.reply = "您还没有问过问题"
+                self.reply = '您还没有问过问题'
                 time.sleep(0.5)
             else:
-                print("ask: 用150字内总结全部对话")
+                print('ask: 用150字内总结全部对话')
                 self.reply += self.bot.conclusion()
 
-        elif self.type == "p":
+        elif self.type == 'p':
             try:
                 self.bot.set_system_character(role=self.prompt)
-                self.reply += f"设定角色 {self.prompt} 成功"
+                self.reply += f'设定角色 {self.prompt} 成功'
             except BotError as CE:
                 self.reply += CE.__str__()
                 time.sleep(0.5)
 
-        elif self.type == "c":
-            print("ask:" + self.prompt)
+        elif self.type == 'c':
+            print('ask:' + self.prompt)
             try:
                 self.reply += self.bot.ask(prompt=self.prompt, access_internet=self.access,
                                            access_result=internetResult)
             except BotError as CE:
                 self.reply += CE.__str__()
 
-        print("reply: " + self.reply)
+        print('reply: ' + self.reply)
         if self.is_citation:
-            self.reply = (self.bot.prev_question[-1][0] if self.type == "rg" else (
-                "用150字内总结全部对话" if self.type == "z" else self.prompt)) + "\n- - - - - - - - - -\n" + self.reply.strip()
+            self.reply = (self.bot.prev_question[-1][0] if self.type == 'rg' else (
+                '用150字内总结全部对话' if self.type == 'z' else self.prompt)) + '\n- - - - - - - - - -\n' + self.reply.strip()
         self.ws.send(send_txt_msg(self.room_id if self.is_room else self.wx_id, self.reply.strip()))
 
 
@@ -92,10 +93,10 @@ class NormalTask:
 
     def play(self):
         time.sleep(0.5)
-        print("reply: " + self.reply)
+        print('reply: ' + self.reply)
 
         if self.is_citation:
-            self.reply = self.prompt + "\n- - - - - - - - - -\n" + self.reply.strip()
+            self.reply = self.prompt + '\n- - - - - - - - - -\n' + self.reply.strip()
         self.ws.send(send_txt_msg(self.room_id if self.is_room else self.wx_id, self.reply.strip()))
 
 
@@ -110,17 +111,33 @@ class ImgTask:
 
         self.img_ws = None
         self.wssRq = {
-            "session_hash": "".join(random.sample(string.ascii_lowercase + string.digits, 11)),
-            "fn_index": 3
+            'session_hash': "".join(random.sample(string.ascii_lowercase + string.digits, 11)),
+            'fn_index': 3
         }
         self.times = 0
 
-        if version == "2.1":
-            self.img_host = "wss://" + API_URL_v21
-        elif version == "1.5":
-            self.img_host = "wss://" + API_URL_v15
-        elif version == "SDXL":
-            self.struct = ImageGenerator()
+        if version == '2.1':
+            self.img_host = 'wss://' + API_URL_v21
+        elif version == '1.5':
+            self.img_host = 'wss://' + API_URL_v15
+        elif version == 'SDXL':
+            self.struct = SDXL()
+        elif version == 'LTCST':
+            self.struct = LTCST()
+
+    def end_work(self, filename, source_str):
+        if not os.path.exists('.cache/'):
+            os.makedirs(cache_dir)
+        with open(cache_dir + filename, 'wb') as file_:
+            file_.write(source_str)
+        file_.close()
+        self.ws.send(send_pic_msg(self.room_id if self.is_room else self.wx_id,
+                                  os.path.join(os.path.abspath(cache_dir), filename)))
+        time.sleep(1.0)
+        if isCached:
+            print('Image cached! Name: ' + cache_dir + filename)
+        else:
+            os.remove(cache_dir + filename)
 
     def on_open(self, img_ws):
         self.times += 1
@@ -129,53 +146,42 @@ class ImgTask:
     def on_message(self, img_ws, message):
         msg = json.loads(message)
 
-        if msg["msg"] == "queue_full":
+        if msg['msg'] == 'queue_full':
             if self.times > 5:
                 # raise
-                err = BotError("ConnectionError", "Public API of Stable Diffusion V2.1 is busy, try it later", -2)
+                err = BotError('ConnectionError', 'Public API of Stable Diffusion V2.1 is busy, try it later', -2)
                 self.ws.send(send_txt_msg(self.room_id if self.is_room else self.wx_id, err.__str__()))
                 img_ws.close()
             else:
                 self.times += 1
                 img_ws.send(json.dumps(self.wssRq))
 
-        elif msg["msg"] == "send_data":
+        elif msg['msg'] == 'send_data':
             process = {
-                "data": [self.prompt[0], "" if len(self.prompt) == 1 else self.prompt[1], 9],
-                "fn_index": 3
+                'data': [self.prompt[0], "" if len(self.prompt) == 1 else self.prompt[1], 9],
+                'fn_index': 3
             }
             img_ws.send(json.dumps(process))
 
-        elif msg["msg"] == "process_starts":
+        elif msg['msg'] == 'process_starts':
             print(message)
 
-        elif msg["msg"] == "process_completed":
-            for item in msg["output"]["data"][0]:
+        elif msg['msg'] == 'process_completed':
+            for item in msg['output']['data'][0]:
                 source_str = base64.urlsafe_b64decode(item[23:])
-                filename = self.wx_id + "_" + self.room_id + "_" + get_time() + ".jpg"
-                if not os.path.exists(".cache/"):
-                    os.makedirs(cache_dir)
-                with open(cache_dir + filename, "wb") as file_object:
-                    file_object.write(source_str)
-                file_object.close()
-
-                self.ws.send(send_pic_msg(self.room_id if self.is_room else self.wx_id,
-                                          os.path.join(os.path.abspath(cache_dir), filename)))
-                time.sleep(1.0)
-                if isCached:
-                    print("Image cached! Name: " + cache_dir + filename)
-                else:
-                    os.remove(cache_dir + filename)
+                filename = self.wx_id + '_' + self.room_id + '_' + get_time() + '.jpg'
+                self.end_work(filename, source_str)
 
     def on_error(self, img_ws, error):
         print(error)
 
     def on_close(self, img_ws, close_status_code, close_msg):
-        print("Stable Diffusion V" + self.version + " arts are done!")
+        print('Stable Diffusion V' + self.version + ' arts are done!')
 
     def play(self):
-        if self.version == "SDXL":
-            addr = self.struct.gen_image(self.prompt[0], "" if len(self.prompt) == 1 else self.prompt[1])
+        if self.version == 'SDXL' or self.version == 'LTCST':
+            addr = self.struct.gen_image(self.prompt[0], 2, 1024, 1024,
+                                         negative_prompt='' if len(self.prompt) == 1 else self.prompt[1])
             if not isinstance(addr, list):
                 self.ws.send(send_txt_msg(self.room_id if self.is_room else self.wx_id, addr.__str__()))
                 return
@@ -183,19 +189,8 @@ class ImgTask:
             dw_ss = requests.session()
             for item in addr:
                 source_str = dw_ss.get(item).content
-                filename = self.wx_id + "_" + self.room_id + "_" + get_time() + ".png"
-                if not os.path.exists(".cache/"):
-                    os.makedirs(cache_dir)
-                with open(cache_dir + filename, "wb") as file_:
-                    file_.write(source_str)
-                file_.close()
-                self.ws.send(send_pic_msg(self.room_id if self.is_room else self.wx_id,
-                                          os.path.join(os.path.abspath(cache_dir), filename)))
-                time.sleep(1.0)
-                if isCached:
-                    print("Image cached! Name: " + cache_dir + filename)
-                else:
-                    os.remove(cache_dir + filename)
+                filename = self.wx_id + '_' + self.room_id + '_' + get_time() + '.png'
+                self.end_work(filename, source_str)
         else:
             self.img_ws = websocket.WebSocketApp(self.img_host,
                                                  on_open=self.on_open,
