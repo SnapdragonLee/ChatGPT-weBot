@@ -2,6 +2,8 @@
 *.c linguist-documentation=false
 *.cc linguist-detectable=false
 *.cc linguist-documentation=false
+*.hpp linguist-detectable=false
+*.hpp linguist-documentation=false
 *.h linguist-detectable=false
 *.h linguist-documentation=false
 wxinject/src/wechat_function.h linguist-detectable=true
