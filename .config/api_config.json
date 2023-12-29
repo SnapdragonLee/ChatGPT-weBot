@@ -1,4 +1,5 @@
 {
+  "api_base": "https://api.openai.com/v1",
   "api_key": "",
   "engine": "gpt-3.5-turbo",
   "max_tokens": 3600,

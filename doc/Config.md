@@ -6,6 +6,8 @@
 
 ```json
 {
+  // OpenAI Base URL(must endswith "/v1")
+  "api_base": "https://api.openai.com/v1",
   // OpenAI Account API_KEY
   "api_key": "",
   // ID of the model to use
