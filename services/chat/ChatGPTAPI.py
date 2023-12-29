@@ -38,6 +38,7 @@ class Chatbot:
         """
         Initialize Chatbot with API key (from https://platform.openai.com/account/api-keys)
         """
+        self.api_base = (config.get("api_base") or "https://api.openai.com/v1").rstrip("/")
         self.api_key = config["api_key"]
         self.engine = config["engine"]
         self.max_tokens = config["max_tokens"]
@@ -192,7 +193,7 @@ class Chatbot:
 
             try:
                 response = self.session.post(
-                    url="https://api.openai.com/v1/chat/completions",
+                    url=f"{self.api_base}/chat/completions",
                     headers={"Authorization": f"Bearer {self.api_key}"},
                     json={
                         "model": self.engine,

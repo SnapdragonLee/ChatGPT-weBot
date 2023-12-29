@@ -6,6 +6,8 @@
 
 ```json
 {
+  // OpenAI Base URL（也可以是任意兼容 OpenAI 的 API 服务地址）
+  "api_base": "https://api.openai.com/v1",
   // OpenAI 账户构建的 API_KEY
   "api_key": "",
   // 需要的模型名称

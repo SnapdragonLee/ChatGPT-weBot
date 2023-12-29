@@ -5,7 +5,6 @@ import json
 # api model check
 with open('.config/api_config.json', encoding='utf-8') as f:
     api_config = json.load(f)
-f.close()
 
 if api_config['engine'] not in [
     'gpt-3.5-turbo',
